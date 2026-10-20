@@ -1,0 +1,91 @@
+name: package-windows
+
+# Builds a signed-less Inno Setup installer (Zed-x86_64.exe) for the fork.
+# Dispatch-only on purpose: a full bundling run takes ~90-120 minutes.
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: Release channel baked into the binary and installer
+        type: choice
+        options:
+          - stable
+          - preview
+          - nightly
+          - dev
+        default: stable
+
+permissions:
+  contents: read
+
+concurrency:
+  group: package-windows
+  cancel-in-progress: true
+
+jobs:
+  installer:
+    runs-on: windows-2022
+    timeout-minutes: 360
+    env:
+      CI: "true"
+      ZED_WORKSPACE: ${{ github.workspace }}
+      # Consumed by script/bundle-windows.ps1 (patched to honor these) and by
+      # the release_channel / windows_resources build scripts.
+      ZED_RELEASE_CHANNEL: ${{ inputs.channel }}
+      RELEASE_CHANNEL: ${{ inputs.channel }}
+      CARGO_INCREMENTAL: "0"
+      CARGO_PROFILE_RELEASE_DEBUG: "0"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        shell: pwsh
+        run: |
+          rustc --version
+          cargo --version
+          Get-ChildItem "C:\Program Files\Microsoft Visual Studio\2022" -Directory | Select-Object -ExpandProperty Name
+          Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Directory -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
+          Test-Path "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+
+      - name: Install Spectre-mitigated VC runtimes
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $vs = Get-ChildItem "C:\Program Files\Microsoft Visual Studio\2022" -Directory |
+            Where-Object { Test-Path "$($_.FullName)\Common7\Tools\Launch-VsDevShell.ps1" } |
+            Select-Object -First 1
+          $installer = "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
+          Start-Process -FilePath $installer -Wait -NoNewWindow -ArgumentList @(
+            "modify",
+            "--installPath", $vs.FullName,
+            "--add", "Microsoft.VisualStudio.Component.VC.Runtimes.x86.x64.Spectre",
+            "--quiet", "--norestart", "--nocache"
+          )
+
+      - name: Cache cargo and target
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: windows-installer-${{ inputs.channel }}
+          cache-targets: true
+
+      - name: Determine release version
+        shell: pwsh
+        run: |
+          $version = (Select-String -Path crates/zed/Cargo.toml -Pattern '^version = "(.*)"' |
+            Select-Object -First 1).Matches[0].Groups[1].Value
+          "RELEASE_VERSION=$version" >> $env:GITHUB_ENV
+
+      # Builds zed, cli, auto_update_helper, explorer_command_injector and
+      # remote_server, then runs Inno Setup. Signing is skipped automatically
+      # because the Azure signing secrets are absent on a fork.
+      - name: Bundle
+        shell: pwsh
+        run: ./script/bundle-windows.ps1
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: zed-windows-installer-${{ inputs.channel }}
+          path: target/Zed-x86_64.exe
+          if-no-files-found: error
+          retention-days: 14

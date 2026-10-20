@@ -40,8 +40,14 @@ function Get-VSArch {
     }
 }
 
+$vsInstall = Get-ChildItem "C:\Program Files\Microsoft Visual Studio\2022" -Directory -ErrorAction SilentlyContinue |
+    Where-Object { Test-Path "$($_.FullName)\Common7\Tools\Launch-VsDevShell.ps1" } |
+    Select-Object -First 1
+if (-not $vsInstall) {
+    throw "No Visual Studio 2022 installation with Launch-VsDevShell.ps1 found"
+}
 Push-Location
-& "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\Launch-VsDevShell.ps1" -Arch (Get-VSArch -Arch $Architecture) -HostArch (Get-VSArch -Arch $OSArchitecture)
+& "$($vsInstall.FullName)\Common7\Tools\Launch-VsDevShell.ps1" -Arch (Get-VSArch -Arch $Architecture) -HostArch (Get-VSArch -Arch $OSArchitecture)
 Pop-Location
 
 $target = "$Architecture-pc-windows-msvc"
@@ -57,7 +63,7 @@ if ($Help) {
 }
 
 Push-Location -Path crates/zed
-$channel = Get-Content "RELEASE_CHANNEL"
+$channel = if ($env:ZED_RELEASE_CHANNEL) { $env:ZED_RELEASE_CHANNEL } else { Get-Content "RELEASE_CHANNEL" }
 $env:ZED_RELEASE_CHANNEL = $channel
 $env:RELEASE_CHANNEL = $channel
 Pop-Location
@@ -207,8 +213,16 @@ function MakeAppx {
         }
     }
     Copy-Item -Path "$manifestFile" -Destination "$innoDir\make_appx\AppxManifest.xml"
-    # Add makeAppx.exe to Path
-    $sdk = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64"
+    # Add makeAppx.exe to Path, picking whichever SDK version the image ships.
+    $sdk = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -match '^\d+\.\d+\.\d+\.\d+$' } |
+        Sort-Object { [version]$_.Name } -Descending |
+        ForEach-Object { Join-Path $_.FullName "x64" } |
+        Where-Object { Test-Path (Join-Path $_ "makeAppx.exe") } |
+        Select-Object -First 1
+    if (-not $sdk) {
+        throw "makeAppx.exe not found in any Windows SDK under C:\Program Files (x86)\Windows Kits\10\bin"
+    }
     $env:Path += ';' + $sdk
     makeAppx.exe pack /d "$innoDir\make_appx" /p "$innoDir\zed_explorer_command_injector.appx" /nv
 }
