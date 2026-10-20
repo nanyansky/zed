@@ -1,0 +1,81 @@
+name: build-linux
+
+# Fork-local build workflow. Upstream's run_tests/release workflows are gated on
+# `github.repository_owner == 'zed-industries'` and use Namespace self-hosted
+# runners, so they never run on a fork. This one uses GitHub-hosted runners.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-linux-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux-x86_64:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 300
+    env:
+      CARGO_INCREMENTAL: "0"
+      # Drop debug info in release to keep the 14 GB runner disk usable.
+      CARGO_PROFILE_RELEASE_DEBUG: "0"
+      CC: clang
+      CXX: clang++
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: false
+
+      # Installs the apt packages from script/linux and rustup; the pinned
+      # toolchain (rust-toolchain.toml) and its targets are fetched on first cargo call.
+      - name: Install system dependencies
+        run: ./script/linux
+
+      # rustup-init writes ~/.cargo/env, but GitHub Actions steps are
+      # non-interactive bash and do not source it.
+      - name: Put cargo on PATH
+        run: |
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+          "$HOME/.cargo/bin/cargo" --version
+          "$HOME/.cargo/bin/rustc" --version
+
+      - name: Cache cargo and target
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: linux-x86_64-release
+          cache-targets: true
+
+      - name: Build zed and cli
+        run: cargo build --release --package zed --package cli
+
+      - name: Package
+        run: |
+          set -euo pipefail
+          mkdir -p out/bin out/libexec
+          cp target/release/cli out/bin/zed
+          cp target/release/zed out/libexec/zed-editor
+          tar -C out -czf zed-dev-linux-x86_64.tar.gz .
+          du -h zed-dev-linux-x86_64.tar.gz
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zed-dev-linux-x86_64
+          path: zed-dev-linux-x86_64.tar.gz
+          retention-days: 14
