@@ -12,6 +12,7 @@ on:
     paths-ignore:
       - "docs/**"
       - "**/*.md"
+      - ".github/workflows/**"
 
 permissions:
   contents: read

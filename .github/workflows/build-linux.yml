@@ -4,13 +4,15 @@ name: build-linux
 # `github.repository_owner == 'zed-industries'` and use Namespace self-hosted
 # runners, so they never run on a fork. This one uses GitHub-hosted runners.
 on:
+  # Temporarily disabled: only Windows is built on push right now.
+  # Re-enable the `push` trigger to build Linux automatically again.
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - "docs/**"
-      - "**/*.md"
+  # push:
+  #   branches:
+  #     - main
+  #   paths-ignore:
+  #     - "docs/**"
+  #     - "**/*.md"
 
 permissions:
   contents: read
