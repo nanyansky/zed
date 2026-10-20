@@ -1,7 +1,9 @@
 use std::{collections::HashSet, sync::Arc};
 
 use editor::Editor;
+use futures::AsyncReadExt as _;
 use gpui::{AnyView, Entity, Focusable as _, ScrollHandle, prelude::*};
+use http_client::{AsyncBody, HttpClient, Method, Request as HttpRequest};
 use language_model::{
     ApiKeyConfiguration, CreateProviderSettingsView, IconOrSvg, InlineDescription,
     LanguageModelProvider, LanguageModelProviderId, LanguageModelRegistry, ProviderSettingsView,
@@ -527,6 +529,7 @@ pub(crate) struct LlmProviderForm {
     api_url: Entity<Editor>,
     api_key: Entity<Editor>,
     models: Vec<ModelInput>,
+    fetching_models: bool,
     error: Option<SharedString>,
 }
 
@@ -548,6 +551,7 @@ impl LlmProviderForm {
                 cx,
             ),
             models: vec![ModelInput::new(0, window, cx)],
+            fetching_models: false,
             error: None,
         }
     }
@@ -766,25 +770,199 @@ fn render_models_section(
                 .justify_between()
                 .child(Label::new("Models"))
                 .child(
-                    Button::new("add-model", "Add Model")
-                        .start_icon(
-                            Icon::new(IconName::Plus)
-                                .size(IconSize::XSmall)
-                                .color(Color::Muted),
+                    h_flex()
+                        .gap_1()
+                        .child(
+                            Button::new(
+                                "fetch-models",
+                                if form.fetching_models {
+                                    "Fetching…"
+                                } else {
+                                    "Fetch Models"
+                                },
+                            )
+                            .start_icon(
+                                Icon::new(IconName::RotateCcw)
+                                    .size(IconSize::XSmall)
+                                    .color(Color::Muted),
+                            )
+                            .label_size(LabelSize::Small)
+                            .style(ButtonStyle::Outlined)
+                            .disabled(form.fetching_models)
+                            .on_click(cx.listener(|this, _, window, cx| {
+                                fetch_models_into_form(this, window, cx);
+                            })),
                         )
-                        .label_size(LabelSize::Small)
-                        .on_click(cx.listener(|this, _, window, cx| {
-                            if let Some(form) = this.llm_provider_form.as_mut() {
-                                let index = form.models.len();
-                                form.models.push(ModelInput::new(index, window, cx));
-                            }
-                            cx.notify();
-                        })),
+                        .child(
+                            Button::new("add-model", "Add Model")
+                                .start_icon(
+                                    Icon::new(IconName::Plus)
+                                        .size(IconSize::XSmall)
+                                        .color(Color::Muted),
+                                )
+                                .label_size(LabelSize::Small)
+                                .on_click(cx.listener(|this, _, window, cx| {
+                                    if let Some(form) = this.llm_provider_form.as_mut() {
+                                        let index = form.models.len();
+                                        form.models.push(ModelInput::new(index, window, cx));
+                                    }
+                                    cx.notify();
+                                })),
+                        ),
                 ),
         )
         .children(form.models.iter().enumerate().map(|(index, model)| {
             render_model(form.kind, model, index, form.models.len(), window, cx)
         }))
+}
+
+fn fetch_models_into_form(
+    this: &mut SettingsWindow,
+    window: &mut Window,
+    cx: &mut Context<SettingsWindow>,
+) {
+    let Some(form) = this.llm_provider_form.as_ref() else {
+        return;
+    };
+    if form.fetching_models {
+        return;
+    }
+    let kind = form.kind;
+    let api_url = form.api_url.read(cx).text(cx);
+    let api_key = form.api_key.read(cx).text(cx);
+    let http_client = cx.http_client();
+
+    if let Some(form) = this.llm_provider_form.as_mut() {
+        form.fetching_models = true;
+        form.error = None;
+    }
+    cx.notify();
+
+    cx.spawn_in(window, async move |this, cx| {
+        let result = fetch_provider_models(kind, &api_url, &api_key, http_client).await;
+        this.update_in(cx, |this, window, cx| {
+            let Some(form) = this.llm_provider_form.as_mut() else {
+                return;
+            };
+            form.fetching_models = false;
+            match result {
+                Ok(models) => {
+                    form.models = models
+                        .into_iter()
+                        .map(|name| {
+                            let input = ModelInput::new(0, window, cx);
+                            input.name.update(cx, |editor, cx| {
+                                editor.set_text(name, window, cx);
+                            });
+                            input
+                        })
+                        .collect();
+                    form.error = None;
+                }
+                Err(error) => form.error = Some(error),
+            }
+            cx.notify();
+        })
+        .ok();
+    })
+    .detach();
+}
+
+/// Lists the model ids an OpenAI- or Anthropic-compatible endpoint advertises,
+/// so a provider can be configured without typing every model by hand.
+async fn fetch_provider_models(
+    kind: CompatibleProviderKind,
+    api_url: &str,
+    api_key: &str,
+    http_client: Arc<dyn HttpClient>,
+) -> Result<Vec<String>, SharedString> {
+    let api_url = api_url.trim().trim_end_matches('/');
+    if api_url.is_empty() {
+        return Err("Enter an API URL first.".into());
+    }
+
+    let builder = match kind {
+        CompatibleProviderKind::OpenAi => {
+            let builder = HttpRequest::builder()
+                .method(Method::GET)
+                .uri(format!("{api_url}/models"));
+            if api_key.trim().is_empty() {
+                builder
+            } else {
+                builder.header("Authorization", format!("Bearer {}", api_key.trim()))
+            }
+        }
+        CompatibleProviderKind::Anthropic => HttpRequest::builder()
+            .method(Method::GET)
+            .uri(format!("{api_url}/v1/models?limit=1000"))
+            .header("Anthropic-Version", "2023-06-01")
+            .header("X-Api-Key", api_key.trim()),
+    }
+    .header("Accept", "application/json");
+
+    let request = builder
+        .body(AsyncBody::default())
+        .map_err(|error| SharedString::from(format!("Invalid request: {error}")))?;
+
+    let mut response = http_client
+        .send(request)
+        .await
+        .map_err(|error| SharedString::from(format!("Request failed: {error}")))?;
+
+    let status = response.status();
+    let mut body = String::new();
+    response
+        .body_mut()
+        .read_to_string(&mut body)
+        .await
+        .map_err(|error| SharedString::from(format!("Failed to read response: {error}")))?;
+
+    if !status.is_success() {
+        return Err(SharedString::from(format!(
+            "Provider returned {status}: {}",
+            body.trim()
+        )));
+    }
+
+    let payload: serde_json::Value = serde_json::from_str(&body)
+        .map_err(|error| SharedString::from(format!("Invalid JSON response: {error}")))?;
+
+    let mut models = payload
+        .get("data")
+        .and_then(|data| data.as_array())
+        .map(|entries| {
+            entries
+                .iter()
+                .filter_map(|entry| entry.get("id").and_then(|id| id.as_str()))
+                .map(str::to_string)
+                .collect::<Vec<_>>()
+        })
+        .unwrap_or_default();
+
+    // Ollama-style endpoints answer with `models[].name` instead of `data[].id`.
+    if models.is_empty() {
+        if let Some(entries) = payload.get("models").and_then(|models| models.as_array()) {
+            models = entries
+                .iter()
+                .filter_map(|entry| {
+                    entry
+                        .get("id")
+                        .or_else(|| entry.get("name"))
+                        .and_then(|name| name.as_str())
+                })
+                .map(str::to_string)
+                .collect();
+        }
+    }
+
+    models.sort_unstable();
+    models.dedup();
+
+    if models.is_empty() {
+        return Err("The provider did not return any models.".into());
+    }
+
+    Ok(models)
 }
 
 fn render_model(

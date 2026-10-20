@@ -387,7 +387,7 @@ pub struct AgentSettingsContent {
     pub message_editor_min_lines: Option<usize>,
     /// Whether to show turn statistics (elapsed time during generation, final turn duration).
     ///
-    /// Default: false
+    /// Default: true
     pub show_turn_stats: Option<bool>,
     /// Whether to show the merge conflict indicator in the status bar
     /// that offers to resolve conflicts using the agent.

@@ -730,6 +730,10 @@ impl ThreadView {
 pub struct TurnFields {
     pub _turn_timer_task: Option<Task<()>>,
     pub last_turn_duration: Option<Duration>,
+    /// Elapsed time of every completed turn, keyed by the index of the
+    /// assistant message that ends it, so each turn keeps its own clock in the
+    /// transcript instead of only the most recent one.
+    pub turn_durations: HashMap<usize, Duration>,
     pub last_turn_tokens: Option<u64>,
     pub turn_generation: usize,
     pub turn_started_at: Option<Instant>,
@@ -1587,7 +1591,7 @@ impl ThreadView {
         generation
     }
 
-    pub fn stop_turn(&mut self, generation: usize, _cx: &mut Context<Self>) {
+    pub fn stop_turn(&mut self, generation: usize, cx: &mut Context<Self>) {
         if self.turn_fields.turn_generation != generation {
             return;
         }
@@ -1596,8 +1600,28 @@ impl ThreadView {
             .turn_started_at
             .take()
             .map(|started| started.elapsed());
+        if let Some(duration) = self.turn_fields.last_turn_duration {
+            self.record_turn_duration(duration, cx);
+        }
         self.turn_fields.last_turn_tokens = self.turn_fields.turn_tokens.take();
         self.turn_fields._turn_timer_task = None;
+    }
+
+    /// Attaches `duration` to the assistant message that closes the current
+    /// turn so the clock survives later turns instead of only describing the
+    /// most recent one.
+    fn record_turn_duration(&mut self, duration: Duration, cx: &App) {
+        let entries = self.thread.read(cx).entries();
+        let entry_count = entries.len();
+        self.turn_fields
+            .turn_durations
+            .retain(|index, _| *index < entry_count);
+        if let Some(index) = entries
+            .iter()
+            .rposition(|entry| matches!(entry, AgentThreadEntry::AssistantMessage(_)))
+        {
+            self.turn_fields.turn_durations.insert(index, duration);
+        }
     }
 
     pub(crate) fn sync_reported_activity(&mut self, cx: &mut Context<Self>) {
@@ -1628,6 +1652,9 @@ impl ThreadView {
             }
             self.turn_fields.reported_activity_generation = Some(activity_generation);
             self.turn_fields.last_turn_duration = duration;
+            if let Some(duration) = duration {
+                self.record_turn_duration(duration, cx);
+            }
             if let Some(output_tokens) = output_tokens {
                 self.turn_fields.last_turn_tokens = Some(output_tokens);
             }
@@ -7704,13 +7731,25 @@ impl ThreadView {
                 }))
         });
 
-        let show_stats = is_thread_bottom && AgentSettings::get_global(cx).show_turn_stats;
+        let show_stats = AgentSettings::get_global(cx).show_turn_stats;
+
+        // Every completed turn keeps its own clock. The bottom row falls back
+        // to the most recent turn when the map has no entry for this message.
+        let turn_duration = self
+            .turn_fields
+            .turn_durations
+            .get(&entry_ix)
+            .copied()
+            .or_else(|| {
+                is_thread_bottom
+                    .then_some(self.turn_fields.last_turn_duration)
+                    .flatten()
+            });
 
         let last_turn_clock = show_stats
             .then(|| {
-                self.turn_fields
-                    .last_turn_duration
-                    .filter(|&duration| duration > STOPWATCH_THRESHOLD)
+                turn_duration
+                    .filter(|duration| *duration > Duration::ZERO)
                     .map(|duration| {
                         Label::new(duration_alt_display(duration))
                             .size(LabelSize::Small)
@@ -7719,8 +7758,9 @@ impl ThreadView {
             })
             .flatten();
 
-        let last_turn_tokens_label = last_turn_clock
-            .is_some()
+        // Token usage is only tracked for the most recent turn, so it must not
+        // be attached to earlier turns that now also render a clock.
+        let last_turn_tokens_label = (is_thread_bottom && last_turn_clock.is_some())
             .then(|| {
                 self.turn_fields
                     .last_turn_tokens
