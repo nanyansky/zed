@@ -17,7 +17,8 @@ permissions:
 
 concurrency:
   group: build-linux-${{ github.ref }}
-  cancel-in-progress: true
+  # Do not kill an in-flight build when an unrelated file lands on main.
+  cancel-in-progress: false
 
 jobs:
   linux-x86_64:

@@ -1,0 +1,79 @@
+name: build-windows
+
+# Fork-local Windows build. Upstream's Windows jobs only run on the
+# `self-32vcpu-windows-2022` self-hosted runner behind an owner gate, which a
+# fork cannot use. This runs on the GitHub-hosted windows-2022 image, which
+# already ships VS 2022 (C++ desktop workload), the Windows SDK and CMake.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows-x86_64:
+    runs-on: windows-2022
+    timeout-minutes: 300
+    env:
+      CARGO_INCREMENTAL: "0"
+      CARGO_PROFILE_RELEASE_DEBUG: "0"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        shell: pwsh
+        run: |
+          rustc --version
+          cargo --version
+          cmake --version
+          (Get-PSDrive C).Free / 1GB
+
+      # docs/src/development/windows.md lists the Spectre-mitigated VC runtimes
+      # as required. The hosted image does not include them.
+      - name: Install Spectre-mitigated VC runtimes
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $vs = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+          $installer = "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe"
+          Start-Process -FilePath $installer -Wait -NoNewWindow -ArgumentList @(
+            "modify",
+            "--installPath", $vs,
+            "--add", "Microsoft.VisualStudio.Component.VC.Runtimes.x86.x64.Spectre",
+            "--quiet", "--norestart", "--nocache"
+          )
+
+      - name: Cache cargo and target
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: windows-x86_64-release
+          cache-targets: true
+
+      - name: Build zed and cli
+        shell: pwsh
+        run: cargo build --release --package zed --package cli
+
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path out/bin | Out-Null
+          Copy-Item target/release/zed.exe out/Zed.exe
+          Copy-Item target/release/cli.exe out/bin/zed.exe
+          Compress-Archive -Path out/* -DestinationPath zed-dev-windows-x86_64.zip -Force
+          (Get-Item zed-dev-windows-x86_64.zip).Length / 1MB
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zed-dev-windows-x86_64
+          path: zed-dev-windows-x86_64.zip
+          retention-days: 14
