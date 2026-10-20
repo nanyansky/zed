@@ -33,6 +33,9 @@ jobs:
       # the release_channel / windows_resources build scripts.
       ZED_RELEASE_CHANNEL: ${{ inputs.channel }}
       RELEASE_CHANNEL: ${{ inputs.channel }}
+      # Compile-time switch that stops a non-dev channel from polling zed.dev
+      # and replacing this self-built binary with the official release.
+      ZED_UPDATE_EXPLANATION: "Self-built from a fork; rebuild it locally to update."
       CARGO_INCREMENTAL: "0"
       CARGO_PROFILE_RELEASE_DEBUG: "0"
     steps:
