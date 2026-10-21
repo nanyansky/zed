@@ -242,6 +242,7 @@ impl WorktreeStore {
         client.add_entity_request_handler(Self::handle_restore_project_entry);
         client.add_entity_request_handler(Self::handle_expand_project_entry);
         client.add_entity_request_handler(Self::handle_expand_all_for_project_entry);
+        client.add_entity_request_handler(Self::handle_refresh_project_entry);
     }
 
     pub fn init_remote(client: &AnyProtoClient) {
@@ -1462,6 +1463,18 @@ impl WorktreeStore {
             .update(&mut cx, |this, cx| this.worktree_for_entry(entry_id, cx))
             .context("invalid request")?;
         Worktree::handle_expand_all_for_entry(worktree, envelope.payload, cx).await
+    }
+
+    pub async fn handle_refresh_project_entry(
+        this: Entity<Self>,
+        envelope: TypedEnvelope<proto::RefreshProjectEntry>,
+        mut cx: AsyncApp,
+    ) -> Result<proto::RefreshProjectEntryResponse> {
+        let entry_id = ProjectEntryId::from_proto(envelope.payload.entry_id);
+        let worktree = this
+            .update(&mut cx, |this, cx| this.worktree_for_entry(entry_id, cx))
+            .context("invalid request")?;
+        Worktree::handle_refresh_entry(worktree, envelope.payload, cx).await
     }
 
     pub async fn handle_allocate_worktree_id(

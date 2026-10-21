@@ -1114,6 +1114,43 @@ impl Worktree {
         }
     }
 
+    /// Rescans an entry so filesystem changes the watcher missed show up.
+    ///
+    /// For remote worktrees this asks the host to rescan, which is the only way
+    /// a WSL/SSH client can refresh a folder on demand.
+    pub fn refresh_entry(
+        &mut self,
+        entry_id: ProjectEntryId,
+        cx: &Context<Worktree>,
+    ) -> Option<Task<Result<()>>> {
+        match self {
+            Worktree::Local(this) => {
+                let path = this.entry_for_id(entry_id)?.path.clone();
+                let mut refresh = this.refresh_entries_for_paths(vec![path]);
+                Some(cx.background_spawn(async move {
+                    refresh.next().await;
+                    Ok(())
+                }))
+            }
+            Worktree::Remote(this) => {
+                let response = this.client.request(proto::RefreshProjectEntry {
+                    project_id: this.project_id,
+                    entry_id: entry_id.to_proto(),
+                });
+                Some(cx.spawn(async move |this, cx| {
+                    let response = response.await?;
+                    this.update(cx, |this, _| {
+                        this.as_remote_mut()
+                            .unwrap()
+                            .wait_for_snapshot(response.worktree_scan_id as usize)
+                    })?
+                    .await?;
+                    Ok(())
+                }))
+            }
+        }
+    }
+
     pub fn expand_all_for_entry(
         &mut self,
         entry_id: ProjectEntryId,
@@ -1268,6 +1305,29 @@ impl Worktree {
             .await?;
         let scan_id = this.read_with(&cx, |this, _| this.scan_id());
         Ok(proto::ExpandAllForProjectEntryResponse {
+            worktree_scan_id: scan_id as u64,
+        })
+    }
+
+    pub async fn handle_refresh_entry(
+        this: Entity<Self>,
+        request: proto::RefreshProjectEntry,
+        mut cx: AsyncApp,
+    ) -> Result<proto::RefreshProjectEntryResponse> {
+        let path = this.update(&mut cx, |this, _| {
+            this.entry_for_id(ProjectEntryId::from_proto(request.entry_id))
+                .map(|entry| entry.path.clone())
+        });
+        let path = path.ok_or_else(|| anyhow::anyhow!("no such entry"))?;
+        let refresh = this.read_with(&cx, |this, _| {
+            this.as_local()
+                .map(|local| local.refresh_entries_for_paths(vec![path]))
+        });
+        let mut refresh =
+            refresh.ok_or_else(|| anyhow::anyhow!("can only refresh local worktrees"))?;
+        refresh.next().await;
+        let scan_id = this.read_with(&cx, |this, _| this.scan_id());
+        Ok(proto::RefreshProjectEntryResponse {
             worktree_scan_id: scan_id as u64,
         })
     }

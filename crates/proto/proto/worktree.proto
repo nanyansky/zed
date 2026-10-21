@@ -156,6 +156,17 @@ message ExpandAllForProjectEntryResponse {
   uint64 worktree_scan_id = 1;
 }
 
+// Asks the host to rescan an entry (and, for a directory, its subtree) so the
+// guest can pick up filesystem changes the watcher missed.
+message RefreshProjectEntry {
+  uint64 project_id = 1;
+  uint64 entry_id = 2;
+}
+
+message RefreshProjectEntryResponse {
+  uint64 worktree_scan_id = 1;
+}
+
 // TODO(yara|dino): split into per-operation response messages (e.g.
 // `CreateProjectEntryResponse`, `CopyProjectEntryResponse`,
 // `DeleteProjectEntryResponse`, `RenameProjectEntryResponse`) for consistency

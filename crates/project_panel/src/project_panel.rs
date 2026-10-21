@@ -420,6 +420,8 @@ actions!(
         UnfoldDirectory,
         /// Folds the selected directory.
         FoldDirectory,
+        /// Rescans the selected entry (or the whole project) for changes.
+        Refresh,
         /// Scroll half a page upwards
         ScrollUp,
         /// Scroll half a page downwards
@@ -1191,9 +1193,11 @@ impl ProjectPanel {
                         .when(is_dir, |menu| {
                             menu.action("Search Inside", Box::new(NewSearchInDirectory))
                         })
+                        .action("Refresh", Box::new(Refresh))
                     } else {
                         menu.action("New File", Box::new(NewFile))
                             .action("New Folder", Box::new(NewDirectory))
+                            .action("Refresh", Box::new(Refresh))
                             .separator()
                             .when(is_local, |menu| {
                                 menu.action(
@@ -2449,6 +2453,30 @@ impl ProjectPanel {
 
     fn new_directory(&mut self, _: &NewDirectory, window: &mut Window, cx: &mut Context<Self>) {
         self.add_entry(true, window, cx)
+    }
+
+    fn refresh(&mut self, _: &Refresh, _window: &mut Window, cx: &mut Context<Self>) {
+        let project = self.project.clone();
+        let entry_ids: Vec<ProjectEntryId> = match self.selection {
+            Some(selection) => vec![selection.entry_id],
+            None => project
+                .read(cx)
+                .worktrees(cx)
+                .filter_map(|worktree| worktree.read(cx).root_entry().map(|entry| entry.id))
+                .collect(),
+        };
+
+        for entry_id in entry_ids {
+            let Some(worktree) = project.read(cx).worktree_for_entry(entry_id, cx) else {
+                continue;
+            };
+            if let Some(task) =
+                worktree.update(cx, |worktree, cx| worktree.refresh_entry(entry_id, cx))
+            {
+                task.detach_and_log_err(cx);
+            }
+        }
+        cx.notify();
     }
 
     fn add_entry(&mut self, is_dir: bool, window: &mut Window, cx: &mut Context<Self>) {
@@ -7647,6 +7675,7 @@ impl Render for ProjectPanel {
                 .on_action(cx.listener(Self::new_search_in_directory))
                 .on_action(cx.listener(Self::unfold_directory))
                 .on_action(cx.listener(Self::fold_directory))
+                .on_action(cx.listener(Self::refresh))
                 .on_action(cx.listener(Self::remove_from_project))
                 .on_action(cx.listener(Self::compare_marked_files))
                 .on_action(cx.listener(Self::open_context_menu))
