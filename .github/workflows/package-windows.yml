@@ -36,6 +36,10 @@ jobs:
       # Compile-time switch that stops a non-dev channel from polling zed.dev
       # and replacing this self-built binary with the official release.
       ZED_UPDATE_EXPLANATION: "Self-built from a fork; rebuild it locally to update."
+      # Optional: set both secrets to sign the installer with a self-signed
+      # certificate (see script/signing/create-self-signed-cert.ps1).
+      SIGNING_PFX_BASE64: ${{ secrets.SIGNING_PFX_BASE64 }}
+      SIGNING_PFX_PASSWORD: ${{ secrets.SIGNING_PFX_PASSWORD }}
       CARGO_INCREMENTAL: "0"
       CARGO_PROFILE_RELEASE_DEBUG: "0"
     steps:
@@ -84,6 +88,29 @@ jobs:
       - name: Bundle
         shell: pwsh
         run: ./script/bundle-windows.ps1
+
+      - name: Sign installer
+        if: env.SIGNING_PFX_BASE64 != ''
+        shell: pwsh
+        run: |
+          $pfxPath = Join-Path $env:RUNNER_TEMP "signing.pfx"
+          [IO.File]::WriteAllBytes($pfxPath, [Convert]::FromBase64String($env:SIGNING_PFX_BASE64))
+          $password = ConvertTo-SecureString $env:SIGNING_PFX_PASSWORD -AsPlainText -Force
+          $cert = Import-PfxCertificate -FilePath $pfxPath -CertStoreLocation Cert:\CurrentUser\My -Password $password
+
+          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Recurse -Filter signtool.exe -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -match '\\x64\\' } |
+            Sort-Object FullName -Descending |
+            Select-Object -First 1
+          if (-not $signtool) { throw "signtool.exe not found in the Windows SDK" }
+
+          $installer = "target/Zed-x86_64.exe"
+          & $signtool.FullName sign /sha1 $cert.Thumbprint /fd sha256 /tr http://timestamp.digicert.com /td sha256 $installer
+          if ($LASTEXITCODE -ne 0) { throw "signtool sign failed with exit code $LASTEXITCODE" }
+          & $signtool.FullName verify /pa $installer
+          if ($LASTEXITCODE -ne 0) { throw "signtool verify failed" }
+
+          Remove-Item $pfxPath -Force
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
