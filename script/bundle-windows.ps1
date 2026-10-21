@@ -165,9 +165,11 @@ function ZipZedAndItsFriendsDebug {
         ".\$CargoOutDir\zed.pdb",
         ".\$CargoOutDir\cli.pdb",
         ".\$CargoOutDir\auto_update_helper.pdb",
-        ".\$CargoOutDir\explorer_command_injector.pdb",
-        ".\$CargoOutDir\remote_server.pdb"
+        ".\$CargoOutDir\explorer_command_injector.pdb"
     )
+    if (-not $env:ZED_SKIP_REMOTE_SERVER) {
+        $items += ".\$CargoOutDir\remote_server.pdb"
+    }
 
     Compress-Archive -Path $items -DestinationPath ".\$CargoOutDir\zed-$env:RELEASE_VERSION-$env:ZED_RELEASE_CHANNEL.dbg.zip" -Force
 }
@@ -410,7 +412,14 @@ if ($env:ZED_BUNDLED_REMOTE_SERVER -and (Test-Path $env:ZED_BUNDLED_REMOTE_SERVE
 
 GenerateLicenses
 BuildZedAndItsFriends
-BuildRemoteServer
+if ($env:ZED_SKIP_REMOTE_SERVER) {
+    # Building the Windows remote_server enables gpui's `profiler` feature,
+    # which recompiles gpui and everything downstream in the shared target
+    # directory. The installer does not contain it, so packaging skips it.
+    Write-Host "Skipping Windows remote_server build (ZED_SKIP_REMOTE_SERVER is set)"
+} else {
+    BuildRemoteServer
+}
 MakeAppx
 SignZedAndItsFriends
 ZipZedAndItsFriendsDebug

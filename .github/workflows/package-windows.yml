@@ -32,6 +32,7 @@ jobs:
     timeout-minutes: 120
     env:
       CARGO_INCREMENTAL: "0"
+      CARGO_PROFILE_RELEASE_DEBUG: "0"
       ZED_RELEASE_CHANNEL: ${{ inputs.channel }}
       RELEASE_CHANNEL: ${{ inputs.channel }}
     steps:
@@ -59,8 +60,10 @@ jobs:
           mkdir -p out
           cp target/x86_64-unknown-linux-musl/release/remote_server out/remote_server
           chmod +x out/remote_server
+          # Without this the musl binary carries limited debug info (~735 MB).
+          strip --strip-all out/remote_server
           ./out/remote_server version
-          gzip -c out/remote_server > out/zed-remote-server-linux-x86_64.gz
+          gzip -9 -c out/remote_server > out/zed-remote-server-linux-x86_64.gz
           ls -lh out/
 
       - uses: actions/upload-artifact@v4
@@ -89,6 +92,10 @@ jobs:
       SIGNING_PFX_PASSWORD: ${{ secrets.SIGNING_PFX_PASSWORD }}
       CARGO_INCREMENTAL: "0"
       CARGO_PROFILE_RELEASE_DEBUG: "0"
+      # The Windows remote_server is not part of the installer and building it
+      # enables gpui's profiler feature, which invalidates the shared target
+      # cache. The Linux server that WSL/SSH needs is bundled separately.
+      ZED_SKIP_REMOTE_SERVER: "1"
     steps:
       - uses: actions/checkout@v4
 
