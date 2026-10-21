@@ -1,0 +1,68 @@
+name: remote-server-linux
+
+# Builds the Linux `remote_server` binary that a Windows Zed uploads into
+# WSL/SSH remotes. A self-built Windows client carries a version string that
+# zed.dev does not publish, so its WSL connection would otherwise fail with
+# "remote server binary ... not found". Build from the same commit and drop the
+# binary into the distro at the name the client expects.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/remote-server-linux.yml"
+      - "crates/remote_server/**"
+      - "crates/remote/**"
+      - "crates/rpc/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: remote-server-linux
+  cancel-in-progress: true
+
+jobs:
+  linux-x86_64:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    env:
+      CARGO_INCREMENTAL: "0"
+      ZED_RELEASE_CHANNEL: stable
+      RELEASE_CHANNEL: stable
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: ./script/linux
+
+      - name: Put cargo on PATH
+        run: |
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+          "$HOME/.cargo/bin/cargo" --version
+
+      - name: Cache cargo and target
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: linux-remote-server-x86_64
+          cache-targets: true
+
+      - name: Build remote server
+        run: |
+          set -euo pipefail
+          rustup target add x86_64-unknown-linux-musl
+          cargo build --release --package remote_server --target x86_64-unknown-linux-musl
+          mkdir -p out
+          cp target/x86_64-unknown-linux-musl/release/remote_server out/remote_server
+          chmod +x out/remote_server
+          ./out/remote_server version
+          ls -lh out/remote_server
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zed-remote-server-linux-x86_64
+          path: out/remote_server
+          retention-days: 30
