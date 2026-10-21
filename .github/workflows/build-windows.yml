@@ -16,7 +16,10 @@ on:
       - "script/**"
 
 permissions:
-  contents: read
+  # `write` is only used to push the build log to the `ci-build-log` branch
+  # when a build fails, so the failure can be diagnosed without download
+  # access to Actions logs.
+  contents: write
 
 concurrency:
   group: build-windows-${{ github.ref }}
@@ -63,7 +66,24 @@ jobs:
 
       - name: Build zed and cli
         shell: pwsh
-        run: cargo build --release --package zed --package cli
+        run: |
+          cargo build --release --package zed --package cli 2>&1 | Tee-Object -FilePath build.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Publish build log on failure
+        if: failure()
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          if (-not (Test-Path build.log)) { exit 0 }
+          $lines = Get-Content build.log -Tail 1200
+          Set-Content -Path build.log -Value $lines
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@users.noreply.github.com"
+          git checkout -B ci-build-log
+          git add -f build.log
+          git commit -m "ci: build log for $env:GITHUB_SHA"
+          git push -f origin ci-build-log
 
       - name: Package
         shell: pwsh

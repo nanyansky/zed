@@ -8228,6 +8228,10 @@ impl ThreadView {
     }
 
     /// Submitted user prompts in this thread, oldest first.
+    ///
+    /// This is the source for the up/down prompt history in the message editor,
+    /// so it intentionally mirrors exactly what the thread rendered as user
+    /// messages rather than tracking a separate submission log.
     fn prompt_history(&self, cx: &App) -> Vec<String> {
         self.thread
             .read(cx)
