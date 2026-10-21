@@ -676,6 +676,9 @@ pub struct ThreadView {
     /// moment so the landing spot is visible, then cleared by `_highlight_task`.
     pub highlighted_turn: Option<usize>,
     _highlight_task: Option<Task<()>>,
+    /// Cached `(current, total)` turn position. Refreshed from the list scroll
+    /// handler because reading the list state during item rendering panics.
+    turn_position: (usize, usize),
     pub discarded_partial_edits: HashSet<acp_v2::ToolCallId>,
     pub is_loading_contents: bool,
     pub new_server_version_available: Option<SharedString>,
@@ -1183,6 +1186,7 @@ impl ThreadView {
             turn_fields: TurnFields::default(),
             highlighted_turn: None,
             _highlight_task: None,
+            turn_position: (1, 0),
             discarded_partial_edits: HashSet::default(),
             is_loading_contents: false,
             new_server_version_available: None,
@@ -1233,6 +1237,11 @@ impl ThreadView {
                             thread.update(cx, |thread, _cx| {
                                 thread.set_ui_scroll_position(Some(scroll_top));
                             });
+                        }
+                        let position = this.turn_position_at(scroll_top.item_ix, cx);
+                        if position != this.turn_position {
+                            this.turn_position = position;
+                            cx.notify();
                         }
                         this.schedule_save(cx);
                     });
@@ -7875,7 +7884,7 @@ impl ThreadView {
         };
 
         let turn_navigator = {
-            let (current, total) = self.turn_position(cx);
+            let (current, total) = self.turn_position;
             (total > 1).then(|| {
                 h_flex()
                     .gap_0p5()
@@ -8171,6 +8180,7 @@ impl ThreadView {
             item_ix: entry_ix,
             offset_in_item: px(0.),
         });
+        self.turn_position = self.turn_position_at(entry_ix, cx);
         self.highlighted_turn = Some(entry_ix);
         self._highlight_task = Some(cx.spawn(async move |this, cx| {
             cx.background_executor()
@@ -8185,12 +8195,15 @@ impl ThreadView {
         cx.notify();
     }
 
-    /// One-based index of the turn at the top of the viewport, plus the total
+    /// One-based index of the turn containing `scroll_item_ix`, plus the total
     /// number of turns in this thread.
-    fn turn_position(&self, cx: &App) -> (usize, usize) {
+    ///
+    /// Callers must not read `list_state.logical_scroll_top()` while list items
+    /// are being rendered: the `List` already holds a mutable borrow of its
+    /// state at that point and the read panics.
+    fn turn_position_at(&self, scroll_item_ix: usize, cx: &App) -> (usize, usize) {
         let thread = self.thread.read(cx);
         let entries = thread.entries();
-        let current_ix = self.list_state.logical_scroll_top().item_ix;
         let mut current = 0;
         let mut total = 0;
         for (index, entry) in entries.iter().enumerate() {
@@ -8198,7 +8211,7 @@ impl ThreadView {
                 continue;
             }
             total += 1;
-            if index <= current_ix {
+            if index <= scroll_item_ix {
                 current = total;
             }
         }
@@ -13436,6 +13449,11 @@ impl Render for ThreadView {
         // current availability of feedback/sharing, which can change between
         // renders (settings, connection state, feature flags).
         self.sync_local_commands(cx);
+
+        // Safe here: the `List` only borrows its state mutably while laying out
+        // items, which happens after this render returns.
+        self.turn_position = self
+            .turn_position_at(self.list_state.logical_scroll_top().item_ix, cx);
 
         let has_messages = self.has_visible_conversation(cx);
         let list_state = self.list_state.clone();
