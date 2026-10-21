@@ -79,6 +79,9 @@ Source: "{#ResourcesDir}\x64\OpenConsole.exe"; DestDir: "{code:GetInstallDir}\x6
 Source: "{#ResourcesDir}\arm64\OpenConsole.exe"; DestDir: "{code:GetInstallDir}\arm64"; Flags: ignoreversion
 #endif
 Source: "{#ResourcesDir}\conpty.dll"; DestDir: "{code:GetInstallDir}"; Flags: ignoreversion
+#ifexist ResourcesDir + "\zed-remote-server-linux-x86_64.gz"
+Source: "{#ResourcesDir}\zed-remote-server-linux-x86_64.gz"; DestDir: "{code:GetInstallDir}"; Flags: ignoreversion
+#endif
 
 [Icons]
 Name: "{group}\{#AppName}"; Filename: "{app}\{#AppExeName}.exe"; AppUserModelID: "{#AppUserId}"

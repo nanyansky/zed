@@ -59,10 +59,11 @@ jobs:
           cp target/x86_64-unknown-linux-musl/release/remote_server out/remote_server
           chmod +x out/remote_server
           ./out/remote_server version
-          ls -lh out/remote_server
+          gzip -c out/remote_server > out/zed-remote-server-linux-x86_64.gz
+          ls -lh out/
 
       - uses: actions/upload-artifact@v4
         with:
           name: zed-remote-server-linux-x86_64
-          path: out/remote_server
+          path: out/
           retention-days: 30

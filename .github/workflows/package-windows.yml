@@ -25,7 +25,52 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # The installer ships this so WSL/SSH remotes work without downloading a
+  # server that zed.dev never published for a self-built version.
+  remote-server-linux:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    env:
+      CARGO_INCREMENTAL: "0"
+      ZED_RELEASE_CHANNEL: ${{ inputs.channel }}
+      RELEASE_CHANNEL: ${{ inputs.channel }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: ./script/linux
+
+      - name: Put cargo on PATH
+        run: |
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+          "$HOME/.cargo/bin/cargo" --version
+
+      - name: Cache cargo and target
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: linux-remote-server-x86_64
+          cache-targets: true
+
+      - name: Build remote server
+        run: |
+          set -euo pipefail
+          rustup target add x86_64-unknown-linux-musl
+          cargo build --release --package remote_server --target x86_64-unknown-linux-musl
+          mkdir -p out
+          cp target/x86_64-unknown-linux-musl/release/remote_server out/remote_server
+          chmod +x out/remote_server
+          ./out/remote_server version
+          gzip -c out/remote_server > out/zed-remote-server-linux-x86_64.gz
+          ls -lh out/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zed-remote-server-linux-x86_64
+          path: out/
+          retention-days: 7
+
   installer:
+    needs: remote-server-linux
     runs-on: windows-2022
     timeout-minutes: 360
     env:
@@ -46,6 +91,12 @@ jobs:
       CARGO_PROFILE_RELEASE_DEBUG: "0"
     steps:
       - uses: actions/checkout@v4
+
+      - name: Download Linux remote server
+        uses: actions/download-artifact@v4
+        with:
+          name: zed-remote-server-linux-x86_64
+          path: remote-server-linux
 
       - name: Show toolchain
         shell: pwsh
@@ -93,6 +144,8 @@ jobs:
       - name: Bundle
         shell: pwsh
         run: |
+          $env:ZED_BUNDLED_REMOTE_SERVER = Join-Path $env:GITHUB_WORKSPACE "remote-server-linux\zed-remote-server-linux-x86_64.gz"
+          if (-not (Test-Path $env:ZED_BUNDLED_REMOTE_SERVER)) { throw "Bundled remote server is missing: $env:ZED_BUNDLED_REMOTE_SERVER" }
           & ./script/bundle-windows.ps1 *> bundle.log
           $code = $LASTEXITCODE
           if ($null -eq $code) { $code = 0 }

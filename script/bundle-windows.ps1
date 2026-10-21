@@ -398,6 +398,16 @@ $debugStoreKey = "$env:ZED_RELEASE_CHANNEL/zed-$env:RELEASE_VERSION-$env:ZED_REL
 
 CheckEnvironmentVariables
 PrepareForBundle
+
+# A self-built client cannot download a matching remote server from zed.dev, so
+# ship the Linux server inside the installer. Zed prefers it over downloading;
+# see crates/remote/src/transport/wsl.rs.
+if ($env:ZED_BUNDLED_REMOTE_SERVER -and (Test-Path $env:ZED_BUNDLED_REMOTE_SERVER)) {
+    $bundledName = "zed-remote-server-linux-$Architecture.gz"
+    Copy-Item -Path $env:ZED_BUNDLED_REMOTE_SERVER -Destination "$innoDir\$bundledName" -Force
+    Write-Host "Bundled remote server: $bundledName"
+}
+
 GenerateLicenses
 BuildZedAndItsFriends
 BuildRemoteServer

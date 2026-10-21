@@ -274,6 +274,25 @@ impl WslRemoteConnection {
             return Ok(dst_path.into());
         }
 
+        // Self-built clients carry a version string that zed.dev never
+        // published, so downloading a matching server always fails. The
+        // installer ships the Linux server next to the client binary; use it
+        // before falling back to the network.
+        if let Some(bundled_path) = bundled_remote_server_path(&self.platform) {
+            log::info!("installing bundled remote server from {bundled_path:?}");
+            let tmp_path = format!(
+                "{}.{}.gz",
+                dst_path.display(PathStyle::Unix),
+                std::process::id()
+            );
+            let tmp_path = RelPath::from_unix_str(&tmp_path).unwrap();
+            self.upload_file(&bundled_path, &tmp_path, delegate, cx)
+                .await?;
+            self.extract_and_install(&tmp_path, &dst_path, delegate, cx)
+                .await?;
+            return Ok(dst_path.into());
+        }
+
         let wanted_version = match release_channel {
             ReleaseChannel::Nightly | ReleaseChannel::Dev => None,
             _ => Some(cx.update(|cx| AppVersion::global(cx))),
@@ -445,6 +464,22 @@ impl WslRemoteConnection {
             .map_err(|e| e.context("Failed to extract server binary"))?;
         Ok(())
     }
+}
+
+/// A Linux remote server shipped next to the client binary.
+///
+/// Self-built installers bundle it because their version string has no
+/// upstream release to download from. The installer drops
+/// `zed-remote-server-<os>-<arch>.gz` beside `Zed.exe`.
+fn bundled_remote_server_path(platform: &RemotePlatform) -> Option<PathBuf> {
+    let executable = std::env::current_exe().ok()?;
+    let directory = executable.parent()?;
+    let path = directory.join(format!(
+        "zed-remote-server-{}-{}.gz",
+        platform.os.as_str(),
+        platform.arch.as_str()
+    ));
+    path.is_file().then_some(path)
 }
 
 #[async_trait(?Send)]
