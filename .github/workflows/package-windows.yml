@@ -74,7 +74,10 @@ jobs:
       - name: Cache cargo and target
         uses: Swatinem/rust-cache@v2
         with:
-          shared-key: windows-installer-${{ inputs.channel }}
+          # Must match build-windows so the installer build reuses the target
+          # directory it already produced. Only valid for the `stable` channel,
+          # since the channel is baked into build scripts.
+          shared-key: windows-x86_64-release
           cache-targets: true
 
       - name: Determine release version

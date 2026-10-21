@@ -32,6 +32,12 @@ jobs:
     env:
       CARGO_INCREMENTAL: "0"
       CARGO_PROFILE_RELEASE_DEBUG: "0"
+      # Keep these identical to package-windows so both workflows share one
+      # cargo target cache: the channel is baked into build scripts, and a
+      # different value invalidates most of the dependency graph.
+      ZED_RELEASE_CHANNEL: stable
+      RELEASE_CHANNEL: stable
+      ZED_UPDATE_EXPLANATION: "Self-built from a fork; rebuild it locally to update."
     steps:
       - uses: actions/checkout@v4
 
@@ -41,6 +47,7 @@ jobs:
           rustc --version
           cargo --version
           cmake --version
+          rustup target add x86_64-pc-windows-msvc
           (Get-PSDrive C).Free / 1GB
 
       # docs/src/development/windows.md lists the Spectre-mitigated VC runtimes
@@ -67,7 +74,9 @@ jobs:
       - name: Build zed and cli
         shell: pwsh
         run: |
-          cargo build --release --package zed --package cli 2>&1 | Tee-Object -FilePath build.log
+          # Same target triple and profile as package-windows so the cargo
+          # target directory (and therefore the cache) is shared.
+          cargo build --release --package zed --package cli --target x86_64-pc-windows-msvc 2>&1 | Tee-Object -FilePath build.log
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Publish build log on failure
@@ -89,8 +98,8 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path out/bin | Out-Null
-          Copy-Item target/release/zed.exe out/Zed.exe
-          Copy-Item target/release/cli.exe out/bin/zed.exe
+          Copy-Item target/x86_64-pc-windows-msvc/release/zed.exe out/Zed.exe
+          Copy-Item target/x86_64-pc-windows-msvc/release/cli.exe out/bin/zed.exe
           Compress-Archive -Path out/* -DestinationPath zed-dev-windows-x86_64.zip -Force
           (Get-Item zed-dev-windows-x86_64.zip).Length / 1MB
 
