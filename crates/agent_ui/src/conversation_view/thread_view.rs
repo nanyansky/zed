@@ -672,6 +672,10 @@ pub struct ThreadView {
     pub editing_message: Option<usize>,
     pub message_queue: MessageQueue,
     pub turn_fields: TurnFields,
+    /// Turn that the navigation controls just jumped to. Kept for a short
+    /// moment so the landing spot is visible, then cleared by `_highlight_task`.
+    pub highlighted_turn: Option<usize>,
+    _highlight_task: Option<Task<()>>,
     pub discarded_partial_edits: HashSet<acp_v2::ToolCallId>,
     pub is_loading_contents: bool,
     pub new_server_version_available: Option<SharedString>,
@@ -1177,6 +1181,8 @@ impl ThreadView {
             editing_message: None,
             message_queue: MessageQueue::default(),
             turn_fields: TurnFields::default(),
+            highlighted_turn: None,
+            _highlight_task: None,
             discarded_partial_edits: HashSet::default(),
             is_loading_contents: false,
             new_server_version_available: None,
@@ -7108,15 +7114,24 @@ impl ThreadView {
                                 .child(Divider::horizontal())
                         }))
                     })
+                    .when(!is_subagent, |this| {
+                        this.child(
+                            h_flex()
+                                .px_1()
+                                .child(Label::new("You").size(LabelSize::XSmall).color(Color::Muted)),
+                        )
+                    })
                     .child(
                         div()
                             .relative()
                             .child(
                                 div()
+                                    .relative()
+                                    .overflow_hidden()
                                     .py_3()
                                     .px_2()
                                     .rounded_md()
-                                    .bg(cx.theme().colors().editor_background)
+                                    .bg(cx.theme().colors().element_hover)
                                     .border_1()
                                     .when(is_indented, |this| {
                                         this.py_2().px_2().when(opaque_window, |this| {
@@ -7143,6 +7158,15 @@ impl ThreadView {
                                             })
                                     })
                                     .text_xs()
+                                    .child(
+                                        div()
+                                            .absolute()
+                                            .left_0()
+                                            .top_0()
+                                            .bottom_0()
+                                            .w(px(2.))
+                                            .bg(cx.theme().colors().text_accent),
+                                    )
                                     .child(editor.clone().into_any_element())
                             )
                             .when(editor_focus, |this| {
@@ -7494,6 +7518,18 @@ impl ThreadView {
             primary
         };
 
+        // Flash the entry we just navigated to so the jump is visible.
+        let primary = if self.highlighted_turn == Some(entry_ix) {
+            div()
+                .w_full()
+                .rounded_md()
+                .bg(cx.theme().colors().element_selected.opacity(0.5))
+                .child(primary)
+                .into_any_element()
+        } else {
+            primary
+        };
+
         if let Some(editing_index) = self.editing_message
             && editing_index < entry_ix
         {
@@ -7838,6 +7874,37 @@ impl ThreadView {
                 .alpha(0.5)
         };
 
+        let turn_navigator = {
+            let (current, total) = self.turn_position(cx);
+            (total > 1).then(|| {
+                h_flex()
+                    .gap_0p5()
+                    .child(
+                        IconButton::new(("previous_turn", entry_ix), IconName::ChevronLeft)
+                            .icon_size(IconSize::XSmall)
+                            .icon_color(Color::Muted)
+                            .tooltip(Tooltip::text("Previous Turn"))
+                            .on_click(cx.listener(|this, _, _window, cx| {
+                                this.jump_to_previous_turn(cx);
+                            })),
+                    )
+                    .child(
+                        Label::new(format!("{current}/{total}"))
+                            .size(LabelSize::Small)
+                            .color(Color::Muted),
+                    )
+                    .child(
+                        IconButton::new(("next_turn", entry_ix), IconName::ChevronRight)
+                            .icon_size(IconSize::XSmall)
+                            .icon_color(Color::Muted)
+                            .tooltip(Tooltip::text("Next Turn"))
+                            .on_click(cx.listener(|this, _, _window, cx| {
+                                this.jump_to_next_turn(cx);
+                            })),
+                    )
+            })
+        };
+
         h_flex()
             .w_full()
             .py_1p5()
@@ -7845,6 +7912,7 @@ impl ThreadView {
             .justify_end()
             .opacity(0.4)
             .hover(|s| s.opacity(1.))
+            .when_some(turn_navigator, |this, navigator| this.child(navigator))
             .when(
                 last_turn_tokens_label.is_some() || last_turn_clock.is_some(),
                 |this| {
@@ -8038,20 +8106,7 @@ impl ThreadView {
         _window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        let thread = self.thread.read(cx);
-        let entries = thread.entries();
-        let current_ix = self.list_state.logical_scroll_top().item_ix;
-        if let Some(target_ix) = (0..current_ix).rev().find(|&i| {
-            entries
-                .get(i)
-                .is_some_and(|entry| thread.is_user_authored_scroll_target(entry))
-        }) {
-            self.list_state.scroll_to(ListOffset {
-                item_ix: target_ix,
-                offset_in_item: px(0.),
-            });
-            cx.notify();
-        }
+        self.jump_to_previous_turn(cx);
     }
 
     fn scroll_output_to_next_message(
@@ -8060,20 +8115,94 @@ impl ThreadView {
         _window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        self.jump_to_next_turn(cx);
+    }
+
+    /// Jumps to the start of the previous turn. When the viewport sits in the
+    /// middle of a turn, the first press returns to that turn's own start
+    /// instead of skipping a whole turn.
+    fn jump_to_previous_turn(&mut self, cx: &mut Context<Self>) {
+        let target = {
+            let thread = self.thread.read(cx);
+            let entries = thread.entries();
+            if entries.is_empty() {
+                return;
+            }
+            let scroll_top = self.list_state.logical_scroll_top();
+            let current_ix = scroll_top.item_ix.min(entries.len() - 1);
+            let at_turn_start = scroll_top.offset_in_item <= px(1.)
+                && entries
+                    .get(current_ix)
+                    .is_some_and(|entry| thread.is_user_authored_scroll_target(entry));
+            let search_until = if at_turn_start {
+                current_ix
+            } else {
+                current_ix + 1
+            };
+            (0..search_until).rev().find(|&index| {
+                entries
+                    .get(index)
+                    .is_some_and(|entry| thread.is_user_authored_scroll_target(entry))
+            })
+        };
+        if let Some(target_ix) = target {
+            self.scroll_to_turn(target_ix, cx);
+        }
+    }
+
+    fn jump_to_next_turn(&mut self, cx: &mut Context<Self>) {
+        let target = {
+            let thread = self.thread.read(cx);
+            let entries = thread.entries();
+            let current_ix = self.list_state.logical_scroll_top().item_ix;
+            (current_ix + 1..entries.len()).find(|&index| {
+                entries
+                    .get(index)
+                    .is_some_and(|entry| thread.is_user_authored_scroll_target(entry))
+            })
+        };
+        if let Some(target_ix) = target {
+            self.scroll_to_turn(target_ix, cx);
+        }
+    }
+
+    fn scroll_to_turn(&mut self, entry_ix: usize, cx: &mut Context<Self>) {
+        self.list_state.scroll_to(ListOffset {
+            item_ix: entry_ix,
+            offset_in_item: px(0.),
+        });
+        self.highlighted_turn = Some(entry_ix);
+        self._highlight_task = Some(cx.spawn(async move |this, cx| {
+            cx.background_executor()
+                .timer(Duration::from_millis(700))
+                .await;
+            this.update(cx, |this, cx| {
+                this.highlighted_turn = None;
+                cx.notify();
+            })
+            .ok();
+        }));
+        cx.notify();
+    }
+
+    /// One-based index of the turn at the top of the viewport, plus the total
+    /// number of turns in this thread.
+    fn turn_position(&self, cx: &App) -> (usize, usize) {
         let thread = self.thread.read(cx);
         let entries = thread.entries();
         let current_ix = self.list_state.logical_scroll_top().item_ix;
-        if let Some(target_ix) = (current_ix + 1..entries.len()).find(|&i| {
-            entries
-                .get(i)
-                .is_some_and(|entry| thread.is_user_authored_scroll_target(entry))
-        }) {
-            self.list_state.scroll_to(ListOffset {
-                item_ix: target_ix,
-                offset_in_item: px(0.),
-            });
-            cx.notify();
+        let mut current = 0;
+        let mut total = 0;
+        for (index, entry) in entries.iter().enumerate() {
+            if !thread.is_user_authored_scroll_target(entry) {
+                continue;
+            }
+            total += 1;
+            if index <= current_ix {
+                current = total;
+            }
         }
+        (current, total)
     }
 
     fn refresh_thread_search(&mut self, window: &mut Window, cx: &mut Context<Self>) {
