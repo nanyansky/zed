@@ -16,7 +16,9 @@ on:
         default: stable
 
 permissions:
-  contents: read
+  # `write` is only used to push the bundling log to `ci-package-log` when the
+  # installer build fails.
+  contents: write
 
 concurrency:
   group: package-windows
@@ -87,7 +89,27 @@ jobs:
       # because the Azure signing secrets are absent on a fork.
       - name: Bundle
         shell: pwsh
-        run: ./script/bundle-windows.ps1
+        run: |
+          & ./script/bundle-windows.ps1 *> bundle.log
+          $code = $LASTEXITCODE
+          if ($null -eq $code) { $code = 0 }
+          Get-Content bundle.log -Tail 200
+          if ($code -ne 0) { exit $code }
+
+      - name: Publish bundling log on failure
+        if: failure()
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          if (-not (Test-Path bundle.log)) { exit 0 }
+          $lines = Get-Content bundle.log -Tail 1200
+          Set-Content -Path bundle.log -Value $lines
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@users.noreply.github.com"
+          git checkout -B ci-package-log
+          git add -f bundle.log
+          git commit -m "ci: bundling log for $env:GITHUB_SHA"
+          git push -f origin ci-package-log
 
       - name: Sign installer
         if: env.SIGNING_PFX_BASE64 != ''
