@@ -947,6 +947,32 @@ impl MessageEditor {
         self.clear_mentions(cx);
     }
 
+    /// Plain text currently in the input.
+    pub(crate) fn input_text(&self, cx: &App) -> String {
+        self.editor.read(cx).text(cx)
+    }
+
+    /// Replaces the input with plain text, dropping any attached context.
+    pub(crate) fn set_input_text(
+        &mut self,
+        text: &str,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.editor
+            .update(cx, |editor, cx| editor.set_text(text, window, cx));
+        self.clear_mentions(cx);
+    }
+
+    /// Zero-based line the cursor currently sits on.
+    pub(crate) fn cursor_line(&mut self, cx: &mut Context<Self>) -> usize {
+        let snapshot = self
+            .editor
+            .update(cx, |editor, cx| editor.display_snapshot(cx));
+        let editor = self.editor.read(cx);
+        editor.selections.newest_display(&snapshot).head().row().0 as usize
+    }
+
     fn clear_mentions(&mut self, cx: &mut Context<Self>) {
         self.editor.update(cx, |editor, cx| {
             editor.remove_creases(

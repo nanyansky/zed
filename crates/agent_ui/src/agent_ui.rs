@@ -400,6 +400,10 @@ actions!(
         ScrollOutputToPreviousMessage,
         /// Scroll the output to the next user message.
         ScrollOutputToNextMessage,
+        /// Recalls the previous prompt into the message editor.
+        EditHistoryPrevious,
+        /// Moves forward through recalled prompts.
+        EditHistoryNext,
         /// Toggles in-thread search over the current agent thread's contents.
         ToggleSearch,
         /// Import agent threads from other Zed release channels (e.g. Preview, Nightly).

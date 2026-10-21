@@ -679,6 +679,12 @@ pub struct ThreadView {
     /// Cached `(current, total)` turn position. Refreshed from the list scroll
     /// handler because reading the list state during item rendering panics.
     turn_position: (usize, usize),
+    /// Index into the prompt history while the user browses it with up/down.
+    history_index: Option<usize>,
+    /// Editor contents saved when history browsing started.
+    history_draft: String,
+    /// Last text restored from history, used to detect manual edits.
+    history_recalled_text: Option<String>,
     pub discarded_partial_edits: HashSet<acp_v2::ToolCallId>,
     pub is_loading_contents: bool,
     pub new_server_version_available: Option<SharedString>,
@@ -1187,6 +1193,9 @@ impl ThreadView {
             highlighted_turn: None,
             _highlight_task: None,
             turn_position: (1, 0),
+            history_index: None,
+            history_draft: String::new(),
+            history_recalled_text: None,
             discarded_partial_edits: HashSet::default(),
             is_loading_contents: false,
             new_server_version_available: None,
@@ -8218,6 +8227,120 @@ impl ThreadView {
         (current, total)
     }
 
+    /// Submitted user prompts in this thread, oldest first.
+    fn prompt_history(&self, cx: &App) -> Vec<String> {
+        self.thread
+            .read(cx)
+            .entries()
+            .iter()
+            .filter_map(|entry| match entry {
+                AgentThreadEntry::UserMessage(message) => {
+                    let text = message
+                        .content
+                        .source_blocks()
+                        .iter()
+                        .filter_map(|block| match block {
+                            acp_v2::ContentBlock::Text(text) => Some(text.text.as_str()),
+                            _ => None,
+                        })
+                        .collect::<Vec<_>>()
+                        .join("\n");
+                    (!text.trim().is_empty()).then_some(text)
+                }
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// Forgets the browsing position once the editor no longer holds the text
+    /// we restored, so typing or sending starts a fresh session.
+    fn sync_history_browsing(&mut self, cx: &App) {
+        let edited = self.history_recalled_text.as_ref().is_some_and(|recalled| {
+            self.message_editor.read(cx).input_text(cx) != *recalled
+        });
+        if edited {
+            self.history_index = None;
+            self.history_draft.clear();
+            self.history_recalled_text = None;
+        }
+    }
+
+    fn edit_history_previous(
+        &mut self,
+        _: &EditHistoryPrevious,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if self.message_editor.read(cx).is_completions_menu_visible(cx) {
+            cx.propagate();
+            return;
+        }
+        self.sync_history_browsing(cx);
+
+        let history = self.prompt_history(cx);
+        if history.is_empty() {
+            cx.propagate();
+            return;
+        }
+
+        let next_index = match self.history_index {
+            Some(0) => 0,
+            Some(index) => index - 1,
+            None => {
+                // Only take over when the caret cannot move up any further.
+                if self
+                    .message_editor
+                    .update(cx, |editor, cx| editor.cursor_line(cx))
+                    != 0
+                {
+                    cx.propagate();
+                    return;
+                }
+                self.history_draft = self.message_editor.read(cx).input_text(cx);
+                history.len() - 1
+            }
+        };
+
+        let text = history[next_index].clone();
+        self.history_index = Some(next_index);
+        self.history_recalled_text = Some(text.clone());
+        self.message_editor
+            .update(cx, |editor, cx| editor.set_input_text(&text, window, cx));
+        cx.notify();
+    }
+
+    fn edit_history_next(
+        &mut self,
+        _: &EditHistoryNext,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if self.message_editor.read(cx).is_completions_menu_visible(cx) {
+            cx.propagate();
+            return;
+        }
+        self.sync_history_browsing(cx);
+
+        let Some(index) = self.history_index else {
+            cx.propagate();
+            return;
+        };
+        let history = self.prompt_history(cx);
+
+        let text = if index + 1 < history.len() {
+            self.history_index = Some(index + 1);
+            history[index + 1].clone()
+        } else {
+            self.history_index = None;
+            std::mem::take(&mut self.history_draft)
+        };
+        self.history_recalled_text = self.history_index.map(|_| text.clone());
+
+        self.message_editor
+            .update(cx, |editor, cx| editor.set_input_text(&text, window, cx));
+        cx.notify();
+    }
+
     fn refresh_thread_search(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         if !self.thread_search_visible {
             return;
@@ -13593,6 +13716,8 @@ impl Render for ThreadView {
             .on_action(cx.listener(Self::scroll_output_to_bottom))
             .on_action(cx.listener(Self::scroll_output_to_previous_message))
             .on_action(cx.listener(Self::scroll_output_to_next_message))
+            .on_action(cx.listener(Self::edit_history_previous))
+            .on_action(cx.listener(Self::edit_history_next))
             .on_action(cx.listener(Self::toggle_search))
             .on_action(cx.listener(|this, _: &ToggleFastMode, window, cx| {
                 this.toggle_fast_mode(window, cx);
