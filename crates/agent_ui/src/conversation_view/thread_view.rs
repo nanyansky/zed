@@ -7127,7 +7127,6 @@ impl ThreadView {
                             .child(
                                 div()
                                     .relative()
-                                    .overflow_hidden()
                                     .py_3()
                                     .px_2()
                                     .rounded_md()
@@ -7162,9 +7161,10 @@ impl ThreadView {
                                         div()
                                             .absolute()
                                             .left_0()
-                                            .top_0()
-                                            .bottom_0()
+                                            .top_1p5()
+                                            .bottom_1p5()
                                             .w(px(2.))
+                                            .rounded_full()
                                             .bg(cx.theme().colors().text_accent),
                                     )
                                     .child(editor.clone().into_any_element())
