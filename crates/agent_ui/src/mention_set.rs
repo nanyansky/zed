@@ -62,18 +62,9 @@ pub struct MentionSet {
     thread_store: Option<Entity<ThreadStore>>,
     mentions: HashMap<CreaseId, (MentionUri, MentionTask)>,
     crease_entities: HashMap<CreaseId, Entity<LoadingContext>>,
-    /// Mention that the user expanded by clicking it, kept so it can be folded
-    /// back once the cursor leaves it.
-    expanded_mention: Option<ExpandedMention>,
-}
-
-struct ExpandedMention {
-    range: Range<Anchor>,
-    label: SharedString,
-    icon: SharedString,
-    tooltip: Option<SharedString>,
-    uri: MentionUri,
-    workspace: Option<WeakEntity<Workspace>>,
+    /// Range of a mention the user expanded by clicking it, kept so it can be
+    /// folded back into a mention once the cursor leaves it.
+    expanded_mention: Option<Range<Anchor>>,
 }
 
 impl MentionSet {
@@ -192,66 +183,121 @@ impl MentionSet {
         self.recompute_disambiguation(cx);
     }
 
-    /// Remembers a mention the user just expanded so it can be folded again when
-    /// the cursor leaves it.
-    pub(crate) fn expand_mention(
-        &mut self,
-        range: Range<Anchor>,
-        label: SharedString,
-        icon: SharedString,
-        tooltip: Option<SharedString>,
-        uri: MentionUri,
-        workspace: Option<WeakEntity<Workspace>>,
-    ) {
-        self.expanded_mention = Some(ExpandedMention {
-            range,
-            label,
-            icon,
-            tooltip,
-            uri,
-            workspace,
-        });
+    /// Remembers the range of a mention the user just expanded so it can be
+    /// folded again when the cursor leaves it.
+    pub(crate) fn expand_mention(&mut self, range: Range<Anchor>) {
+        self.expanded_mention = Some(range);
     }
 
-    /// Folds the expanded mention back once the cursor is no longer inside it.
+    /// The editable form of a mention (its path), relative to its
+    /// worktree when possible.
+    pub(crate) fn editable_path_for_uri(
+        &self,
+        uri: &MentionUri,
+        cx: &App,
+    ) -> Option<String> {
+        let abs_path = match uri {
+            MentionUri::File { abs_path } | MentionUri::Directory { abs_path } => abs_path,
+            _ => return None,
+        };
+        let Some(project) = self.project.upgrade() else {
+            return Some(abs_path.display().to_string());
+        };
+        let project = project.read(cx);
+        match project.project_path_for_absolute_path(abs_path, cx) {
+            Some(project_path) => Some(
+                project_path
+                    .path
+                    .display(project.path_style(cx))
+                    .into_owned(),
+            ),
+            None => Some(abs_path.display().to_string()),
+        }
+    }
+
+    /// Folds the expanded mention back into a mention once the cursor is no
+    /// longer inside it. The text is re-resolved, so an edited path takes effect
+    /// without pressing Enter; text that no longer resolves is left as-is.
     pub(crate) fn refold_expanded_mention(
         &mut self,
         editor: Entity<Editor>,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        let Some(expanded) = self.expanded_mention.take() else {
+        let Some(range) = self.expanded_mention.take() else {
             return;
         };
 
         let snapshot = editor.read(cx).buffer().read(cx).snapshot(cx);
         let head = editor.read(cx).selections.newest_anchor().head();
-        let is_inside = expanded.range.start.cmp(&head, &snapshot) != std::cmp::Ordering::Greater
-            && head.cmp(&expanded.range.end, &snapshot) != std::cmp::Ordering::Greater;
+        let is_inside = range.start.cmp(&head, &snapshot) != std::cmp::Ordering::Greater
+            && head.cmp(&range.end, &snapshot) != std::cmp::Ordering::Greater;
         if is_inside {
-            self.expanded_mention = Some(expanded);
+            self.expanded_mention = Some(range);
             return;
         }
 
-        let start = expanded.range.start.to_offset(&snapshot).0;
-        let end = expanded.range.end.to_offset(&snapshot).0;
+        let text: String = snapshot.text_for_range(range.clone()).collect();
+        let Some(raw_path) = text.trim().strip_prefix('@') else {
+            return;
+        };
+        let raw_path = raw_path.trim_end_matches('/');
+        if raw_path.is_empty() {
+            return;
+        }
+
+        let Some(project) = self.project.upgrade() else {
+            return;
+        };
+        let abs_path = if Path::new(raw_path).is_absolute() {
+            PathBuf::from(raw_path)
+        } else {
+            let Some(worktree) = project.read(cx).worktrees(cx).next() else {
+                return;
+            };
+            worktree.read(cx).abs_path().join(raw_path)
+        };
+
+        let uri = match project.read(cx).project_path_for_absolute_path(&abs_path, cx) {
+            Some(project_path) => {
+                let is_dir = project
+                    .read(cx)
+                    .worktree_for_id(project_path.worktree_id, cx)
+                    .and_then(|worktree| {
+                        worktree
+                            .read(cx)
+                            .entry_for_path(&project_path.path)
+                            .map(|entry| entry.is_dir())
+                    })
+                    .unwrap_or(false);
+                if is_dir {
+                    MentionUri::Directory { abs_path }
+                } else {
+                    MentionUri::File { abs_path }
+                }
+            }
+            None => MentionUri::File { abs_path },
+        };
+        let label: SharedString = uri.name().into();
+        let icon = uri.icon_path(cx);
+        let tooltip = uri.tooltip_text();
+        let start = range.start.to_offset(&snapshot).0;
+        let end = range.end.to_offset(&snapshot).0;
         if end <= start {
             return;
         }
-
-        // The crease helper expects a buffer anchor, not a multibuffer one.
-        let Some((start_anchor, _)) = snapshot.anchor_to_buffer_anchor(expanded.range.start) else {
+        let Some((start_anchor, _)) = snapshot.anchor_to_buffer_anchor(range.start) else {
             return;
         };
 
         let _ = insert_crease_for_mention(
             start_anchor,
             end - start,
-            expanded.label,
-            expanded.icon,
-            expanded.tooltip,
-            Some(expanded.uri),
-            expanded.workspace,
+            label,
+            icon,
+            tooltip,
+            Some(uri),
+            None,
             None,
             Some(cx.weak_entity()),
             editor,
@@ -1493,46 +1539,51 @@ impl Render for LoadingContext {
             .on_click({
                 let editor = self.editor.clone();
                 let range = self.range.clone();
-                let label = self.label.clone();
-                let icon = self.icon.clone();
-                let tooltip = self.tooltip.clone();
                 let uri = self.mention_uri.clone();
-                let workspace = self.workspace.clone();
                 let mention_set = self.mention_set.clone();
                 move |window, cx| {
                     let Some(editor) = editor.upgrade() else {
                         return;
                     };
-                    let unfold_range = range.clone();
-                    editor.update(cx, |editor, cx| {
-                        editor.unfold_ranges(&[unfold_range.clone()], true, false, cx);
+                    let Some(uri) = uri.clone() else {
+                        return;
+                    };
+                    let Some(editable_path) = mention_set.clone().and_then(|mention_set| {
+                        mention_set
+                            .update(cx, |mention_set, cx| {
+                                mention_set.editable_path_for_uri(&uri, cx)
+                            })
+                            .ok()
+                            .flatten()
+                    }) else {
+                        return;
+                    };
+
+                    // Show the plain path instead of the markdown link so it can
+                    // be edited or completed further.
+                    let replacement = format!("@{editable_path}");
+                    let edited_range = editor.update(cx, |editor, cx| {
+                        editor.unfold_ranges(&[range.clone()], true, false, cx);
                         editor.change_selections(
                             SelectionEffects::no_scroll(),
                             window,
                             cx,
-                            |selections| {
-                                selections
-                                    .select_ranges([unfold_range.end..unfold_range.end])
-                            },
+                            |selections| selections.select_ranges([range.clone()]),
                         );
+                        let start = editor.selections.newest_anchor().start;
+                        editor.insert(&replacement, window, cx);
+                        let end = editor.selections.newest_anchor().head();
+                        start..end
                     });
 
-                    let (Some(mention_set), Some(uri)) = (mention_set.clone(), uri.clone()) else {
-                        return;
-                    };
-                    mention_set
-                        .update(cx, |mention_set, cx| {
-                            mention_set.expand_mention(
-                                range.clone(),
-                                label.clone(),
-                                icon.clone(),
-                                tooltip.clone(),
-                                uri,
-                                workspace.clone(),
-                            );
-                            cx.notify();
-                        })
-                        .ok();
+                    if let Some(mention_set) = mention_set {
+                        mention_set
+                            .update(cx, |mention_set, cx| {
+                                mention_set.expand_mention(edited_range);
+                                cx.notify();
+                            })
+                            .ok();
+                    }
                 }
             })
             .mention_uri(self.mention_uri.clone())
