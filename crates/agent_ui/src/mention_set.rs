@@ -1576,7 +1576,7 @@ impl Render for LoadingContext {
                         start..end
                     });
 
-                    if let Some(mention_set) = mention_set {
+                    if let Some(mention_set) = mention_set.clone() {
                         mention_set
                             .update(cx, |mention_set, cx| {
                                 mention_set.expand_mention(edited_range);

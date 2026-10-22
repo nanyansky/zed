@@ -749,10 +749,11 @@ impl<T: PromptCompletionProviderDelegate> PromptCompletionProvider<T> {
         label_max_chars: usize,
         cx: &mut App,
     ) -> Option<Completion> {
-        let file_name = path
+        let file_name: SharedString = path
             .file_name()
             .map(|name| name.to_string_lossy().into_owned())
-            .unwrap_or_else(|| path.display().to_string());
+            .unwrap_or_else(|| path.display().to_string())
+            .into();
         let directory = path
             .parent()
             .map(|parent| parent.display().to_string())

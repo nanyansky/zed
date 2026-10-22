@@ -557,11 +557,9 @@ impl MessageEditor {
                     let editor = editor.clone();
                     let mention_set = this.mention_set.clone();
                     window.defer(cx, move |window, cx| {
-                        mention_set
-                            .update(cx, |mention_set, cx| {
-                                mention_set.refold_expanded_mention(editor, window, cx);
-                            })
-                            .ok();
+                        mention_set.update(cx, |mention_set, cx| {
+                            mention_set.refold_expanded_mention(editor, window, cx);
+                        });
                     });
                 }
 
@@ -1211,6 +1209,7 @@ impl MessageEditor {
                         Some(mention_uri.clone()),
                         Some(self.workspace.clone()),
                         None,
+                        Some(self.mention_set.downgrade()),
                         self.editor.clone(),
                         window,
                         cx,
@@ -1328,6 +1327,7 @@ impl MessageEditor {
                             Some(mention_uri.clone()),
                             Some(self.workspace.clone()),
                             None,
+                            Some(self.mention_set.downgrade()),
                             self.editor.clone(),
                             window,
                             cx,
@@ -1555,6 +1555,7 @@ impl MessageEditor {
                         Some(mention_uri.clone()),
                         Some(weak_workspace),
                         None,
+                        Some(self.mention_set.downgrade()),
                         editor,
                         window,
                         cx,
@@ -1935,6 +1936,7 @@ impl MessageEditor {
                 Some(mention_uri.clone()),
                 Some(self.workspace.clone()),
                 image_preview,
+                Some(self.mention_set.downgrade()),
                 self.editor.clone(),
                 window,
                 cx,
@@ -4713,6 +4715,7 @@ mod tests {
                     Some(uri.clone()),
                     Some(message_editor.workspace.clone()),
                     None,
+                    Some(message_editor.mention_set.downgrade()),
                     message_editor.editor.clone(),
                     window,
                     cx,
@@ -4875,6 +4878,7 @@ mod tests {
                     Some(uri.clone()),
                     Some(message_editor.workspace.clone()),
                     None,
+                    Some(message_editor.mention_set.downgrade()),
                     message_editor.editor.clone(),
                     window,
                     cx,
