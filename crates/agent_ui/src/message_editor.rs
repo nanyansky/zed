@@ -1555,7 +1555,7 @@ impl MessageEditor {
                         Some(mention_uri.clone()),
                         Some(weak_workspace),
                         None,
-                        Some(self.mention_set.downgrade()),
+                        Some(mention_set.downgrade()),
                         editor,
                         window,
                         cx,
