@@ -9,7 +9,9 @@ use crate::thread_metadata_store::{ThreadMetadata, ThreadMetadataStore};
 use acp_thread::MentionUri;
 use agent_client_protocol::schema::v2 as acp;
 use anyhow::Result;
-use editor::{CompletionProvider, Editor, code_context_menus::COMPLETION_MENU_MAX_WIDTH};
+use editor::{
+    CompletionProvider, Editor, SelectionEffects, code_context_menus::COMPLETION_MENU_MAX_WIDTH,
+};
 use futures::{FutureExt as _, StreamExt as _};
 use fuzzy::{PathMatch, StringMatch, StringMatchCandidate};
 use gpui::{
@@ -693,10 +695,21 @@ impl<T: PromptCompletionProviderDelegate> PromptCompletionProvider<T> {
 
         // A directory keeps a trailing slash and no space so that pressing Tab
         // (`CompletionIntent::Compose`) can continue completing inside it.
-        let new_text = if is_directory {
-            format!("{}/", uri.as_link())
+        // Plain path text, not a markdown link: Tab keeps it editable and the
+        // completion menu can keep querying it. Enter rewrites it as a link.
+        let display_path = if path_prefix.is_empty() {
+            project_path.path.display(path_style).into_owned()
         } else {
-            uri.as_link().to_string()
+            format!(
+                "{}/{}",
+                path_prefix.display(path_style),
+                project_path.path.display(path_style)
+            )
+        };
+        let new_text = if is_directory {
+            format!("@{display_path}/")
+        } else {
+            format!("@{display_path}")
         };
         let new_text_len = new_text.len();
         Some(Completion {
@@ -760,10 +773,11 @@ impl<T: PromptCompletionProviderDelegate> PromptCompletionProvider<T> {
         };
         let icon = uri.icon_path(cx);
 
+        let display_path = path.display().to_string();
         let new_text = if is_directory {
-            format!("{}/", uri.as_link())
+            format!("@{display_path}/")
         } else {
-            uri.as_link().to_string()
+            format!("@{display_path}")
         };
         let new_text_len = new_text.len();
 
@@ -2127,29 +2141,49 @@ fn confirm_path_completion_callback<T: PromptCompletionProviderDelegate>(
         let mention_uri = mention_uri.clone();
         let workspace = workspace.clone();
         window.defer(cx, move |window, cx| {
-            if let Some(editor) = editor.upgrade() {
-                // The directory completion inserts `@path/` without a trailing
-                // space, so add one before the fold replaces the text.
-                editor.update(cx, |editor, cx| editor.insert(" ", window, cx));
-                mention_set
-                    .clone()
-                    .update(cx, |mention_set, cx| {
-                        mention_set
-                            .confirm_mention_completion(
-                                crease_text,
-                                start,
-                                content_len,
-                                mention_uri,
-                                source.supports_images(cx),
-                                editor,
-                                &workspace,
-                                window,
-                                cx,
-                            )
-                            .detach();
-                    })
-                    .ok();
-            }
+            let Some(editor) = editor.upgrade() else {
+                return;
+            };
+
+            // The completion inserted plain path text; rewrite it as the
+            // mention link that is persisted in the thread.
+            let link = format!("{}", mention_uri.as_link());
+            let link_len = link.len();
+            editor.update(cx, |editor, cx| {
+                let snapshot = editor.buffer().read(cx).snapshot(cx);
+                let Some(start_mb) = snapshot.anchor_in_excerpt(start) else {
+                    return;
+                };
+                let end_mb =
+                    snapshot.anchor_before(start_mb.to_offset(&snapshot) + content_len);
+                editor.change_selections(
+                    SelectionEffects::no_scroll(),
+                    window,
+                    cx,
+                    |selections| selections.select_ranges([start_mb..end_mb]),
+                );
+                editor.insert(&link, window, cx);
+                editor.insert(" ", window, cx);
+            });
+
+            mention_set
+                .clone()
+                .update(cx, |mention_set, cx| {
+                    mention_set
+                        .confirm_mention_completion(
+                            crease_text,
+                            start,
+                            link_len,
+                            mention_uri,
+                            source.supports_images(cx),
+                            editor,
+                            &workspace,
+                            window,
+                            cx,
+                        )
+                        .detach();
+                })
+                .ok();
         });
         false
     })

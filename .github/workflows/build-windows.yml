@@ -32,11 +32,10 @@ jobs:
     env:
       CARGO_INCREMENTAL: "0"
       CARGO_PROFILE_RELEASE_DEBUG: "0"
-      # Keep these identical to package-windows so both workflows share one
-      # cargo target cache: the channel is baked into build scripts, and a
-      # different value invalidates most of the dependency graph.
-      ZED_RELEASE_CHANNEL: stable
-      RELEASE_CHANNEL: stable
+      # The portable build runs as the dev channel so it has its own
+      # single-instance mutex and can coexist with an installed stable build.
+      ZED_RELEASE_CHANNEL: dev
+      RELEASE_CHANNEL: dev
       ZED_UPDATE_EXPLANATION: "Self-built from a fork; rebuild it locally to update."
     steps:
       - uses: actions/checkout@v4
@@ -68,7 +67,7 @@ jobs:
       - name: Cache cargo and target
         uses: Swatinem/rust-cache@v2
         with:
-          shared-key: windows-x86_64-release
+          shared-key: windows-x86_64-dev
           cache-targets: true
 
       - name: Build zed and cli

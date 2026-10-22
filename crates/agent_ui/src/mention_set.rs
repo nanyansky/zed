@@ -19,7 +19,7 @@ use http_client::{AsyncBody, HttpClientWithUrl};
 use itertools::Either;
 use language::Buffer;
 use language_model::{LanguageModelImage, LanguageModelImageExt};
-use multi_buffer::MultiBufferRow;
+use multi_buffer::{MultiBufferOffset, MultiBufferRow};
 use postage::stream::Stream as _;
 use project::{Project, ProjectItem, ProjectPath, Worktree};
 use rope::Point;
@@ -238,6 +238,7 @@ impl MentionSet {
         }
 
         let text: String = snapshot.text_for_range(range.clone()).collect();
+        log::info!("mention: refold check text={text:?}");
         let Some(raw_path) = text.trim().strip_prefix('@') else {
             return;
         };
@@ -1574,10 +1575,23 @@ impl Render for LoadingContext {
                             cx,
                             |selections| selections.select_ranges([range.clone()]),
                         );
-                        let start = editor.selections.newest_anchor().start;
                         editor.insert(&replacement, window, cx);
-                        let end = editor.selections.newest_anchor().head();
-                        start..end
+
+                        // Derive the range from the cursor: the selection anchors
+                        // collapse onto the inserted text.
+                        let snapshot = editor.buffer().read(cx).snapshot(cx);
+                        let end_offset = editor
+                            .selections
+                            .newest_anchor()
+                            .head()
+                            .to_offset(&snapshot)
+                            .0;
+                        let start_offset =
+                            end_offset.saturating_sub(replacement.chars().count());
+                        (
+                            snapshot.anchor_before(MultiBufferOffset(start_offset)),
+                            snapshot.anchor_after(MultiBufferOffset(end_offset)),
+                        )
                     });
 
                     if let Some(mention_set) = mention_set.clone() {
