@@ -1,0 +1,1200 @@
+  Downloaded zerovec v0.11.8
+  Downloaded zerovec-derive v0.11.5
+  Downloaded dyn-clone v1.0.20
+  Downloaded either v1.15.0
+  Downloaded regalloc2 v0.15.2
+  Downloaded regex v1.12.3
+  Downloaded aes v0.8.4
+  Downloaded zerocopy v0.8.27
+  Downloaded derive_more-impl v2.1.1
+  Downloaded email_address v0.2.9
+  Downloaded inventory v0.3.21
+  Downloaded io-extras v0.19.0
+  Downloaded libsqlite3-sys v0.30.1
+  Downloaded regex-lite v0.1.8
+  Downloaded rgb v0.8.52
+  Downloaded rle-decode-fast v1.0.3
+  Downloaded rustls-native-certs v0.8.3
+  Downloaded rustls-pemfile v2.2.0
+  Downloaded seahash v4.1.0
+  Downloaded serde v1.0.229
+  Downloaded unicode-linebreak v0.1.5
+  Downloaded ec4rs v1.2.0
+  Downloaded embed-resource v3.0.6
+  Downloaded resvg v0.46.0
+  Downloaded roughr-merman v0.12.3
+  Downloaded selectors v0.37.0
+  Downloaded semver v1.0.28
+  Downloaded unicode-ident v1.0.24
+  Downloaded unicode-properties v0.1.3
+  Downloaded unicode-script v0.5.8
+  Downloaded unicode-segmentation v1.13.3
+  Downloaded uuid v1.18.1
+  Downloaded darling_core v0.20.11
+  Downloaded darling_macro v0.20.11
+  Downloaded darling_macro v0.23.0
+  Downloaded dary_heap v0.3.9
+  Downloaded dasp_sample v0.11.0
+  Downloaded data-encoding v2.9.0
+  Downloaded data-url v0.3.2
+  Downloaded debugid v0.8.0
+  Downloaded reqwest v0.12.24
+  Downloaded darling_core v0.23.0
+  Downloaded regex-syntax v0.8.11
+  Downloaded rustls v0.23.45
+  Downloaded aho-corasick v1.1.3
+  Downloaded smol v2.0.2
+  Downloaded aws-lc-sys v0.45.0
+  Downloaded rustix v1.1.4
+  Downloaded agent-client-protocol v3.4.0
+  Downloaded agent-client-protocol-schema v1.12.0
+  Downloaded jobserver v0.1.34
+  Downloaded dirs v6.0.0
+  Downloaded doxygen-rs v0.4.2
+  Downloaded dtoa-short v0.3.5
+  Downloaded jsonschema-regex v0.51.0
+  Downloaded dirs-sys v0.5.0
+  Downloaded displaydoc v0.2.5
+  Downloaded documented v0.10.0
+  Downloaded documented-macros v0.10.0
+  Downloaded dotenvy v0.15.7
+  Downloaded dtoa v1.0.10
+  Downloaded dugong-graphlib v0.8.0-alpha.5
+  Downloaded dunce v1.0.5
+  Downloaded ring v0.17.14
+  Downloaded dugong v0.8.0-alpha.5
+  Downloaded io-lifetimes v3.0.1
+  Downloaded is-terminal v0.4.16
+  Downloaded itertools v0.14.0
+  Downloaded jiff-tzdb-platform v0.1.3
+  Downloaded json5 v1.3.1
+  Downloaded io-lifetimes v2.0.4
+  Downloaded ipnet v2.11.0
+  Downloaded is_executable v1.0.5
+  Downloaded is_terminal_polyfill v1.70.1
+  Downloaded itoa v1.0.18
+  Downloaded jiff-tzdb v0.1.8
+  Downloaded petgraph v0.8.3
+  Downloaded ipc-channel v0.19.0
+  Downloaded itertools v0.15.0
+  Downloaded regex-automata v0.4.18
+  Downloaded jiff v0.2.15
+  Downloaded windows_x86_64_msvc v0.52.6
+  Downloaded embedded-io v0.6.1
+  Downloaded rust-embed v8.11.0
+  Downloaded logos v0.15.1
+  Downloaded jsonschema v0.51.0
+  Downloaded rav1e v0.8.1
+  Downloaded windows-sys v0.59.0
+  Downloaded windows-sys v0.61.2
+  Downloaded windows-sys v0.60.2
+  Downloaded serde_fmt v1.0.3
+  Downloaded pori v0.0.0
+  Downloaded windows v0.62.2
+  Downloaded windows v0.61.3
+  Downloaded windows v0.57.0
+  Downloaded windows v0.58.0
+  Downloaded parse_int v0.9.0
+  Downloaded windows-bindgen v0.61.1
+  Downloaded windows v0.56.0
+  Downloaded yawc v0.4.2
+  Downloaded aws-smithy-runtime v1.10.1
+  Downloaded cmake v0.1.56
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.47
+   Compiling serde_core v1.0.229
+   Compiling serde v1.0.229
+   Compiling getrandom v0.3.4
+   Compiling cfg-if v1.0.4
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.11
+   Compiling jobserver v0.1.34
+   Compiling syn v2.0.117
+   Compiling syn v3.0.3
+   Compiling cc v1.4.3
+   Compiling windows-link v0.2.1
+   Compiling memchr v2.8.3
+   Compiling value-bag v1.12.0
+   Compiling log v0.4.29
+   Compiling windows-sys v0.61.2
+   Compiling allocator-api2 v0.2.21
+   Compiling equivalent v1.0.2
+   Compiling foldhash v0.2.0
+   Compiling itoa v1.0.18
+   Compiling scopeguard v1.2.0
+   Compiling lock_api v0.4.14
+   Compiling version_check v0.9.5
+   Compiling hashbrown v0.17.1
+   Compiling pin-project-lite v0.2.16
+   Compiling serde_derive v1.0.229
+   Compiling indexmap v2.14.0
+   Compiling libm v0.2.16
+   Compiling zmij v1.0.23
+   Compiling typenum v1.19.0
+   Compiling futures-core v0.3.34
+   Compiling generic-array v0.14.7
+   Compiling anyhow v1.0.104
+   Compiling autocfg v1.5.0
+   Compiling parking_lot_core v0.9.12
+   Compiling once_cell v1.21.4
+   Compiling smallvec v1.16.1
+   Compiling futures-io v0.3.34
+   Compiling heck v0.5.0
+   Compiling subtle v2.6.1
+   Compiling serde_json v1.0.151
+   Compiling parking_lot v0.12.5
+   Compiling futures-macro v0.3.34
+   Compiling const-oid v0.9.6
+   Compiling slab v0.4.11
+   Compiling bytes v1.11.1
+   Compiling crossbeam-utils v0.8.21
+   Compiling futures-sink v0.3.34
+   Compiling synstructure v0.13.2
+   Compiling crypto-common v0.1.6
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling zerofrom-derive v0.1.6
+   Compiling num-traits v0.2.19
+   Compiling cpufeatures v0.2.17
+   Compiling thiserror v2.0.17
+   Compiling fnv v1.0.7
+   Compiling crc32fast v1.5.0
+   Compiling yoke-derive v0.8.2
+   Compiling thiserror-impl v2.0.17
+   Compiling futures-channel v0.3.34
+   Compiling bitflags v2.13.1
+   Compiling futures-task v0.3.34
+   Compiling windows_x86_64_msvc v0.52.6
+   Compiling futures-util v0.3.34
+   Compiling zerovec-derive v0.11.5
+   Compiling sha2 v0.10.9
+   Compiling displaydoc v0.2.5
+   Compiling either v1.15.0
+   Compiling regex-syntax v0.8.11
+   Compiling aho-corasick v1.1.3
+   Compiling winapi-util v0.1.11
+   Compiling stable_deref_trait v1.2.1
+   Compiling icu_properties_data v2.3.0
+   Compiling icu_normalizer_data v2.3.0
+   Compiling pkg-config v0.3.32
+   Compiling regex-automata v0.4.18
+   Compiling windows-targets v0.52.6
+   Compiling http v1.3.1
+   Compiling regex v1.12.3
+   Compiling semver v1.0.28
+   Compiling zerofrom v0.1.6
+   Compiling yoke v0.8.3
+   Compiling percent-encoding v2.3.2
+   Compiling tracing-core v0.1.36
+   Compiling windows_x86_64_msvc v0.53.1
+   Compiling zerovec v0.11.8
+   Compiling tracing-attributes v0.1.31
+   Compiling windows-targets v0.53.5
+   Compiling zerocopy v0.8.27
+   Compiling fastrand v2.3.0
+   Compiling tinystr v0.8.4
+   Compiling zerocopy-derive v0.8.27
+   Compiling tracing v0.1.44
+   Compiling litemap v0.8.0
+   Compiling rustc-hash v2.1.1
+   Compiling writeable v0.6.4
+   Compiling potential_utf v0.1.3
+   Compiling icu_locale_core v2.3.0
+   Compiling zerotrie v0.2.5
+   Compiling icu_provider v2.3.0
+   Compiling form_urlencoded v1.2.2
+   Compiling zstd-sys v2.0.16+zstd.1.5.7
+   Compiling spin v0.9.8
+   Compiling ryu v1.0.23
+   Compiling parking v2.2.1
+   Compiling utf8_iter v1.0.4
+   Compiling windows-sys v0.60.2
+   Compiling icu_collections v2.3.0
+   Compiling http-body v1.0.1
+   Compiling hashbrown v0.16.1
+   Compiling atomic-waker v1.1.2
+   Compiling write16 v1.0.0
+   Compiling utf16_iter v1.0.5
+   Compiling icu_normalizer v2.3.0
+   Compiling icu_properties v2.3.0
+   Compiling concurrent-queue v2.5.0
+   Compiling idna_adapter v1.2.1
+   Compiling idna v1.1.0
+   Compiling futures-executor v0.3.34
+   Compiling futures v0.3.34
+   Compiling windows-interface v0.59.3
+   Compiling windows-implement v0.60.2
+   Compiling pin-utils v0.1.0
+   Compiling url v2.5.7
+   Compiling futures-lite v2.6.1
+   Compiling new_debug_unreachable v1.0.6
+   Compiling anstyle v1.0.13
+   Compiling libc v0.2.186
+   Compiling once_cell_polyfill v1.70.1
+   Compiling utf8parse v0.2.2
+   Compiling sha1_smol v1.0.1
+   Compiling uuid v1.18.1
+   Compiling anstyle-parse v0.2.7
+   Compiling anstyle-wincon v3.0.10
+   Compiling event-listener v5.4.1
+   Compiling anstyle-query v1.1.4
+   Compiling crossbeam-epoch v0.9.18
+   Compiling colorchoice v1.0.4
+   Compiling is_terminal_polyfill v1.70.1
+   Compiling simd-adler32 v0.3.7
+   Compiling ref-cast v1.0.25
+   Compiling anstream v0.6.21
+   Compiling event-listener-strategy v0.5.4
+   Compiling terminal_size v0.4.3
+   Compiling ref-cast-impl v1.0.25
+   Compiling async-task v4.7.1 (https://github.com/zed-industries/async-task.git?rev=015845a19fc31752c02367567d3b8900a406f9da#015845a1)
+   Compiling strsim v0.11.1
+   Compiling clap_lex v0.7.6
+   Compiling clap_builder v4.5.49
+   Compiling crossbeam-deque v0.8.6
+   Compiling clap_derive v4.5.49
+   Compiling rustix v1.1.4
+   Compiling adler2 v2.0.1
+   Compiling miniz_oxide v0.8.9
+   Compiling polling v3.11.0
+   Compiling clap v4.5.49
+   Compiling piper v0.2.4
+   Compiling errno v0.3.14
+   Compiling windows-strings v0.5.1
+   Compiling windows-result v0.4.1
+   Compiling async-channel v2.5.0
+   Compiling rustc_version v0.4.1
+   Compiling async-io v2.6.0
+   Compiling serde_derive_internals v0.29.1
+   Compiling rayon-core v1.13.0
+   Compiling zstd-safe v7.3.0
+   Compiling blocking v1.6.2
+   Compiling flate2 v1.1.8
+   Compiling dyn-clone v1.0.20
+   Compiling schemars_derive v1.0.4
+   Compiling windows-core v0.62.2
+   Compiling async-lock v3.4.2
+   Compiling itertools v0.14.0
+   Compiling schemars v1.0.4
+   Compiling arrayvec v0.7.6
+   Compiling tendril v0.5.1
+   Compiling which v8.0.5
+   Compiling gpui_util v0.1.0 (D:\a\zed\zed\crates\gpui_util)
+   Compiling rayon v1.11.0
+   Compiling async-executor v1.13.3
+   Compiling strum_macros v0.28.0
+   Compiling windows-threading v0.2.1
+   Compiling windows-future v0.3.2
+   Compiling windows-collections v0.3.2
+   Compiling windows-numerics v0.3.1
+   Compiling async-process v2.5.0 (https://github.com/zed-industries/async-process.git?rev=0b6d6713570af61806e1e5cb40e0f757cb93fd9d#0b6d6713)
+   Compiling no_std_io2 v0.9.4
+   Compiling pin-project-internal v1.1.10
+   Compiling rle-decode-fast v1.0.3
+   Compiling base64 v0.22.1
+   Compiling libflate_lz77 v2.3.0
+   Compiling windows v0.62.2
+   Compiling pin-project v1.1.10
+   Compiling same-file v1.0.6
+   Compiling adler32 v1.2.0
+   Compiling dary_heap v0.3.9
+   Compiling siphasher v1.0.1
+   Compiling libflate v2.3.1
+   Compiling walkdir v2.5.0
+   Compiling zstd v0.13.3
+   Compiling collections v0.1.0 (D:\a\zed\zed\crates\collections)
+   Compiling bstr v1.12.1
+   Compiling proc-macro-error-attr3 v3.1.1
+   Compiling unicase v2.8.1
+   Compiling proc-macro-error3 v3.1.1
+   Compiling globset v0.4.17
+   Compiling include-flate-compress v0.3.4
+   Compiling strum v0.28.0
+   Compiling async-fs v2.2.0
+   Compiling async-net v2.0.0
+   Compiling libbz2-rs-sys v0.2.2
+   Compiling dunce v1.0.5
+   Compiling syn v1.0.109
+   Compiling option-ext v0.2.0
+   Compiling dirs-sys v0.5.0
+   Compiling bzip2 v0.6.1
+   Compiling path v0.1.0 (D:\a\zed\zed\crates\path)
+   Compiling smol v2.0.2
+   Compiling rust-embed-utils v8.11.0
+   Compiling include-flate-codegen v0.3.4
+   Compiling deflate64 v0.1.10
+   Compiling compression-core v0.4.29
+   Compiling serde_json_lenient v0.2.4
+   Compiling compression-codecs v0.4.31
+   Compiling rust-embed-impl v8.11.0
+   Compiling dirs v6.0.0
+   Compiling ppv-lite86 v0.2.21
+   Compiling event-listener v2.5.3
+   Compiling getrandom v0.4.1
+   Compiling rand_core v0.10.1
+   Compiling async-channel v1.9.0
+   Compiling include-flate v0.3.4
+   Compiling async-attributes v1.1.2
+   Compiling rust-embed v8.11.0
+   Compiling async-compression v0.4.32
+   Compiling async-global-executor v2.4.1
+   Compiling serde_urlencoded v0.7.1
+   Compiling kv-log-macro v1.0.7
+   Compiling async-std v1.13.2
+   Compiling async_zip v0.0.18
+   Compiling winnow v0.7.13
+   Compiling rustc-demangle v0.1.26
+   Compiling windows-link v0.1.3
+   Compiling chrono v0.4.42
+   Compiling filetime v0.2.29
+   Compiling bytemuck v1.24.0
+   Compiling unicode-xid v0.2.6
+   Compiling async-tar v0.6.1 (https://github.com/zed-industries/async-tar?rev=bd3ad6f89df9a9da7a8535958756d6bf465936a0#bd3ad6f8)
+   Compiling tempfile v3.27.0
+   Compiling unicode-segmentation v1.13.3
+   Compiling rand_core v0.9.3
+   Compiling smol_str v0.3.6
+   Compiling rand_chacha v0.9.0
+   Compiling gpui_shared_string v0.1.0 (D:\a\zed\zed\crates\gpui_shared_string)
+   Compiling windows-result v0.3.4
+   Compiling vswhom-sys v0.1.3
+   Compiling rand v0.9.4
+   Compiling euclid v0.22.14
+   Compiling zeroize v1.8.2
+   Compiling bitflags v1.3.2
+   Compiling windows-sys v0.59.0
+   Compiling convert_case v0.10.0
+   Compiling toml_parser v1.0.4
+   Compiling toml_datetime v0.7.3
+   Compiling serde_spanned v1.0.3
+   Compiling toml_writer v1.0.4
+   Compiling byteorder v1.5.0
+   Compiling toml v0.9.8
+   Compiling vswhom v0.1.0
+   Compiling derive_more-impl v2.1.1
+   Compiling windows-strings v0.4.2
+   Compiling object v0.37.3
+   Compiling winreg v0.55.0
+   Compiling winapi v0.3.9
+   Compiling embed-resource v3.0.6
+   Compiling windows-core v0.61.2
+   Compiling polycool v0.4.0
+   Compiling windows-result v0.1.2
+   Compiling kurbo v0.13.1
+   Compiling derive_more v2.1.1
+   Compiling half v2.7.1
+   Compiling slotmap v1.0.7
+   Compiling heapless v0.9.2
+   Compiling ztracing v0.1.0 (D:\a\zed\zed\crates\ztracing)
+   Compiling svgtypes v0.16.1
+   Compiling hash32 v0.3.1
+   Compiling windows-threading v0.1.0
+   Compiling fdeflate v0.3.7
+   Compiling ar_archive_writer v0.5.1
+   Compiling core_maths v0.1.1
+   Compiling ntapi v0.4.1
+   Compiling ztracing_macro v0.1.0 (D:\a\zed\zed\crates\ztracing_macro)
+   Compiling float-cmp v0.9.0
+   Compiling strict-num v0.1.1
+   Compiling ttf-parser v0.25.1
+   Compiling windows-future v0.2.1
+   Compiling psm v0.1.30
+   Compiling windows-collections v0.2.0
+   Compiling windows-numerics v0.2.0
+   Compiling lyon_geom v1.0.17
+   Compiling windows-implement v0.57.0
+   Compiling windows-interface v0.57.0
+   Compiling roxmltree v0.21.1
+   Compiling tinyvec_macros v0.1.1
+   Compiling quick-error v2.0.1
+   Compiling zune-core v0.5.1
+   Compiling data-url v0.3.2
+   Compiling arrayref v0.3.9
+   Compiling weezl v0.1.10
+   Compiling waker-fn v1.2.0
+   Compiling web-time v1.1.0
+   Compiling tiny-skia-path v0.11.4
+   Compiling zune-jpeg v0.5.15
+   Compiling tinyvec v1.10.0
+   Compiling windows-core v0.57.0
+   Compiling lyon_path v1.0.16
+   Compiling windows v0.61.3
+   Compiling sum_tree v0.1.0 (D:\a\zed\zed\crates\sum_tree)
+   Compiling fax_derive v0.2.0
+   Compiling enumn v0.1.14
+   Compiling stacker v0.1.25
+   Compiling unicode-bidi-mirroring v0.4.0
+   Compiling memmap2 v0.9.8
+   Compiling unicode-ccc v0.4.0
+   Compiling unicode-properties v0.1.3
+   Compiling unicode-script v0.5.8
+   Compiling color_quant v1.1.0
+   Compiling byteorder-lite v0.1.0
+   Compiling rustybuzz v0.20.1
+   Compiling image-webp v0.2.4
+   Compiling gif v0.14.2
+   Compiling fontdb v0.23.0
+   Compiling accesskit v0.24.1
+   Compiling fax v0.2.6
+   Compiling windows v0.57.0
+   Compiling png v0.17.16
+   Compiling zune-inflate v0.2.54
+   Compiling pxfm v0.1.25
+   Compiling ctrlc v3.5.0
+   Compiling simplecss v0.2.2
+   Compiling tree-sitter-language v0.1.8 (https://github.com/tree-sitter/tree-sitter?rev=43623ec9bf0eaaf7113285c46e8a09018f181b18#43623ec9)
+   Compiling float_next_after v1.0.0
+   Compiling lebe v0.5.3
+   Compiling unicode-bidi v0.3.18
+   Compiling xmlwriter v0.1.0
+   Compiling unicode-vo v0.1.0
+   Compiling bit_field v0.10.3
+   Compiling imagesize v0.14.0
+   Compiling pico-args v0.5.0
+   Compiling usvg v0.46.0
+   Compiling util v0.1.0 (D:\a\zed\zed\crates\util)
+   Compiling http_client v0.1.0 (D:\a\zed\zed\crates\http_client)
+   Compiling windows-capture v1.4.3 (https://github.com/zed-industries/windows-capture.git?rev=f0d6c1b6691db75461b732f6d5ff56eed002eeb9#f0d6c1b6)
+   Compiling exr v1.74.0
+   Compiling lyon_tessellation v1.0.16
+   Compiling moxcms v0.8.1
+   Compiling sysinfo v0.31.4
+   Compiling tiny-skia v0.11.4
+   Compiling tiff v0.11.3
+   Compiling lyon_algorithms v1.0.16
+   Compiling png v0.18.0
+   Compiling gpui v0.2.2 (D:\a\zed\zed\crates\gpui)
+   Compiling rgb v0.8.52
+   Compiling qoi v0.4.1
+   Compiling backtrace v0.3.76
+   Compiling flume v0.12.0
+   Compiling derive_refineable v0.1.0 (D:\a\zed\zed\crates\refineable\derive_refineable)
+   Compiling profiling-procmacros v1.0.17
+   Compiling stacksafe-macro v1.0.3
+   Compiling linktime-proc-macro v0.2.2
+   Compiling svg_fmt v0.4.5
+   Compiling link-section v0.19.2
+   Compiling etagere v0.2.15
+   Compiling refineable v0.1.0 (D:\a\zed\zed\crates\refineable)
+   Compiling stacksafe v1.0.3
+   Compiling profiling v1.0.17
+   Compiling scheduler v0.1.0 (D:\a\zed\zed\crates\scheduler)
+   Compiling ctor v1.0.12
+   Compiling image v0.25.10
+   Compiling resvg v0.46.0
+   Compiling lyon v1.0.16
+   Compiling zed-scap v0.0.8-zed (https://github.com/zed-industries/scap?rev=4afea48c3b002197176fb19cd0f9b180dd36eaac#4afea48c)
+   Compiling taffy v0.13.0
+   Compiling hdrhistogram v7.5.4
+   Compiling gpui_macros v0.1.0 (D:\a\zed\zed\crates\gpui_macros)
+   Compiling spin v0.10.0
+   Compiling pollster v0.4.0
+   Compiling raw-window-handle v0.6.2
+   Compiling inventory v0.3.21
+   Compiling num_cpus v1.17.0
+   Compiling seahash v4.1.0
+   Compiling termcolor v1.4.1
+   Compiling mio v1.2.0
+   Compiling socket2 v0.6.5
+   Compiling tokio-macros v2.7.0
+   Compiling tokio v1.52.1
+   Compiling encoding_rs v0.8.35
+   Compiling lazy_static v1.5.0
+   Compiling time-core v0.1.8
+   Compiling num-conv v0.2.0
+   Compiling ring v0.17.14
+   Compiling wasmtime-internal-core v48.0.1
+   Compiling foldhash v0.1.5
+   Compiling hashbrown v0.15.5
+   Compiling powerfmt v0.2.0
+   Compiling cranelift-srcgen v0.135.1
+   Compiling cranelift-assembler-x64-meta v0.135.1
+   Compiling deranged v0.5.4
+   Compiling time-macros v0.2.27
+   Compiling time v0.3.47
+   Compiling cranelift-bitset v0.135.1
+   Compiling pulley-macros v48.0.1
+   Compiling httparse v1.10.1
+   Compiling prost-derive v0.14.4
+   Compiling imara-diff v0.2.0
+   Compiling num-integer v0.1.46
+   Compiling async-trait v0.1.89
+   Compiling target-lexicon v0.13.5
+   Compiling cranelift-isle v0.135.1
+   Compiling zeta_prompt v0.1.0 (D:\a\zed\zed\crates\zeta_prompt)
+   Compiling pulley-interpreter v48.0.1
+   Compiling cranelift-entity v0.135.1
+   Compiling cobs v0.3.0
+   Compiling prettyplease v0.2.37
+   Compiling cranelift-codegen-shared v0.135.1
+   Compiling cranelift-codegen-meta v0.135.1
+   Compiling postcard v1.1.3
+   Compiling cranelift-bforest v0.135.1
+   Compiling prost v0.14.4
+   Compiling cranelift-assembler-x64 v0.135.1
+   Compiling gimli v0.33.0
+   Compiling getrandom v0.2.16
+   Compiling prost-types v0.14.4
+   Compiling cranelift-codegen v0.135.1
+   Compiling cloud_llm_client v0.1.0 (D:\a\zed\zed\crates\cloud_llm_client)
+   Compiling wasmparser v0.254.0
+   Compiling wasmtime-internal-versioned-export-macros v48.0.1
+   Compiling bumpalo v3.20.3
+   Compiling cpp_demangle v0.5.1
+   Compiling arbitrary v1.4.2
+   Compiling object v0.39.1
+   Compiling cranelift-control v0.135.1
+   Compiling regalloc2 v0.15.2
+   Compiling leb128fmt v0.1.0
+   Compiling thiserror v1.0.69
+   Compiling wasm-encoder v0.254.0
+   Compiling wasmprinter v0.254.0
+   Compiling thiserror-impl v1.0.69
+   Compiling wasmtime-internal-component-util v48.0.1
+   Compiling id-arena v2.3.0
+   Compiling wit-parser v0.254.0
+   Compiling wasmtime-environ v48.0.1
+   Compiling wasm-metadata v0.254.0
+   Compiling cmake v0.1.56
+   Compiling fs_extra v1.3.0
+   Compiling wasmtime-internal-unwinder v48.0.1
+   Compiling fixedbitset v0.5.7
+   Compiling partial-json-fixer v0.5.3
+   Compiling language_model_core v0.1.0 (D:\a\zed\zed\crates\language_model_core)
+   Compiling petgraph v0.8.3
+   Compiling aws-lc-sys v0.45.0
+   Compiling wit-component v0.254.0
+   Compiling wasmtime-internal-fiber v48.0.1
+   Compiling wasmtime-internal-cranelift v48.0.1
+   Compiling multimap v0.8.3
+   Compiling wasmtime-internal-component-macro v48.0.1
+   Compiling prost-build v0.14.4
+   Compiling wasmtime-internal-wit-bindgen v48.0.1
+   Compiling wasmtime v48.0.1
+   Compiling cranelift-frontend v0.135.1
+   Compiling cranelift-native v0.135.1
+   Compiling wasmtime-internal-jit-icache-coherence v48.0.1
+   Compiling tokio-util v0.7.18
+   Compiling logos-codegen v0.15.1
+   Compiling aws-lc-rs v1.18.1
+   Compiling rustls-pki-types v1.12.0
+   Compiling beef v0.5.2
+   Compiling wasmtime-c-api-impl v48.0.1
+   Compiling logos-codegen v0.16.1
+   Compiling const_format_proc_macros v0.2.34
+   Compiling miette-derive v7.6.0
+   Compiling unicode-width v0.1.14
+   Compiling untrusted v0.7.1
+   Compiling untrusted v0.9.0
+   Compiling miette v7.6.0
+   Compiling const_format v0.2.35
+   Compiling logos-derive v0.16.1
+   Compiling logos-derive v0.15.1
+   Compiling tree-sitter v0.27.0 (https://github.com/tree-sitter/tree-sitter?rev=43623ec9bf0eaaf7113285c46e8a09018f181b18#43623ec9)
+   Compiling wasmtime-internal-c-api-macros v48.0.1
+   Compiling release_channel v0.1.0 (D:\a\zed\zed\crates\release_channel)
+   Compiling logos v0.15.1
+   Compiling logos v0.16.1
+   Compiling ignore v0.4.24
+   Compiling http-body-util v0.1.3
+   Compiling crossbeam-queue v0.3.12
+   Compiling streaming-iterator v0.1.9
+   Compiling rustls v0.23.45
+   Compiling paths v0.1.0 (D:\a\zed\zed\crates\paths)
+   Compiling prost-reflect v0.16.5
+   Compiling protox-parse v0.9.0
+   Compiling tree-sitter-json v0.24.8
+   Compiling static_assertions v1.1.0
+   Compiling protox v0.9.1
+   Compiling net v0.1.0 (D:\a\zed\zed\crates\net)
+   Compiling proto v0.1.0 (D:\a\zed\zed\crates\proto)
+   Compiling urlencoding v2.1.3
+   Compiling askpass v0.1.0 (D:\a\zed\zed\crates\askpass)
+   Compiling telemetry_events v0.1.0 (D:\a\zed\zed\crates\telemetry_events)
+   Compiling serde_path_to_error v0.1.20
+   Compiling atomic v0.5.3
+   Compiling pollster v0.2.5
+   Compiling postage v0.5.0
+   Compiling settings_json v0.1.0 (D:\a\zed\zed\crates\settings_json)
+   Compiling rope v0.1.0 (D:\a\zed\zed\crates\rope)
+   Compiling windows-interface v0.56.0
+   Compiling windows-implement v0.56.0
+   Compiling settings_macros v0.1.0 (D:\a\zed\zed\crates\settings_macros)
+   Compiling settings_content v0.1.0 (D:\a\zed\zed\crates\settings_content)
+   Compiling rustls-webpki v0.103.15
+   Compiling tokio-rustls v0.26.4
+   Compiling windows-core v0.56.0
+   Compiling telemetry v0.1.0 (D:\a\zed\zed\crates\telemetry)
+   Compiling chardetng v0.1.17
+   Compiling clock v0.1.0 (D:\a\zed\zed\crates\clock)
+   Compiling file_content v0.1.0 (D:\a\zed\zed\crates\file_content)
+   Compiling text v0.1.0 (D:\a\zed\zed\crates\text)
+   Compiling windows v0.56.0
+   Compiling notify-types v2.1.0 (https://github.com/zed-industries/notify?rev=d842f16b2716bd60f09caf3ae3a894237ab38f54#d842f16b)
+   Compiling xxhash-rust v0.8.16
+   Compiling by_address v1.2.1
+   Compiling palette v0.7.6
+   Compiling palette_derive v0.7.6
+   Compiling notify v9.0.0-rc.4 (https://github.com/zed-industries/notify?rev=d842f16b2716bd60f09caf3ae3a894237ab38f54#d842f16b)
+   Compiling git v0.1.0 (D:\a\zed\zed\crates\git)
+   Compiling phf_shared v0.13.1
+   Compiling rand_core v0.6.4
+   Compiling is_executable v1.0.5
+   Compiling fast-srgb8 v1.0.0
+   Compiling trash v5.2.5 (https://github.com/zed-industries/trash-rs?rev=41c6c800d884a89351f3b8856d12894cccee261d#41c6c800)
+   Compiling fs v0.1.0 (D:\a\zed\zed\crates\fs)
+   Compiling convert_case v0.11.0
+   Compiling sha1 v0.10.6
+   Compiling migrator v0.1.0 (D:\a\zed\zed\crates\migrator)
+   Compiling rand_chacha v0.3.1
+   Compiling phf_generator v0.13.1
+   Compiling data-encoding v2.9.0
+   Compiling ec4rs v1.2.0
+   Compiling settings v0.1.0 (D:\a\zed\zed\crates\settings)
+   Compiling rand v0.8.6
+   Compiling hex v0.4.3
+   Compiling ipnet v2.11.0
+   Compiling rustversion v1.0.22
+   Compiling utf-8 v0.7.6
+   Compiling tungstenite v0.28.0
+   Compiling num-iter v0.1.45
+   Compiling syntax_theme v0.1.0 (D:\a\zed\zed\crates\syntax_theme)
+   Compiling theme v0.1.0 (D:\a\zed\zed\crates\theme)
+   Compiling der v0.7.10
+   Compiling spki v0.7.3
+   Compiling try-lock v0.2.5
+   Compiling num-bigint-dig v0.8.6
+   Compiling tower-service v0.3.3
+   Compiling want v0.3.1
+   Compiling pkcs8 v0.10.2
+   Compiling h2 v0.4.19
+   Compiling pkcs1 v0.7.5
+   Compiling hyper v1.11.1
+   Compiling async-tungstenite v0.33.0
+   Compiling signature v2.2.0
+   Compiling shellexpand v3.1.1
+   Compiling schannel v0.1.28
+   Compiling nu-ansi-term v0.50.3
+   Compiling rsa v0.9.10
+   Compiling hyper-util v0.1.17
+   Compiling arc-swap v1.9.0
+   Compiling phf_macros v0.13.1
+   Compiling zed_actions v0.1.0 (D:\a\zed\zed\crates\zed_actions)
+   Compiling lru v0.16.4
+   Compiling language_core v0.1.0 (D:\a\zed\zed\crates\language_core)
+   Compiling task v0.1.0 (D:\a\zed\zed\crates\task)
+   Compiling phf v0.13.1
+   Compiling watch v0.1.0 (D:\a\zed\zed\crates\watch)
+   Compiling rpc v0.1.0 (D:\a\zed\zed\crates\rpc)
+   Compiling nucleo-matcher v0.3.1
+   Compiling fuzzy v0.1.0 (D:\a\zed\zed\crates\fuzzy)
+   Compiling lsp-types v0.95.1 (https://github.com/zed-industries/lsp-types?rev=f1783e63a7f4eb4397bf51d4148b4895a1f7ab16#f1783e63)
+   Compiling zlog v0.1.0 (D:\a\zed\zed\crates\zlog)
+   Compiling fuzzy_nucleo v0.1.0 (D:\a\zed\zed\crates\fuzzy_nucleo)
+   Compiling diffy v0.4.2
+   Compiling phf_codegen v0.13.1
+   Compiling webpki-roots v1.0.8
+   Compiling credentials_provider v0.1.0 (D:\a\zed\zed\crates\credentials_provider)
+   Compiling rustls-platform-verifier v0.7.0
+   Compiling ciborium-io v0.2.2
+   Compiling ascii v1.1.0
+   Compiling chunked_transfer v1.5.0
+   Compiling httpdate v1.0.3
+   Compiling tiny_http v0.12.0
+   Compiling ciborium-ll v0.2.2
+   Compiling http_client_tls v0.1.0 (D:\a\zed\zed\crates\http_client_tls)
+   Compiling ciborium v0.2.2
+   Compiling gpui_tokio v0.1.0 (D:\a\zed\zed\crates\gpui_tokio)
+   Compiling nom v8.0.0
+   Compiling native-tls v0.2.18
+   Compiling cloud_api_types v0.1.0 (D:\a\zed\zed\crates\cloud_api_types)
+   Compiling precomputed-hash v0.1.1
+   Compiling arraydeque v0.5.1
+   Compiling feature_flags_macros v0.1.0 (D:\a\zed\zed\crates\feature_flags_macros)
+   Compiling feature_flags v0.1.0 (D:\a\zed\zed\crates\feature_flags)
+   Compiling tokio-native-tls v0.3.1
+   Compiling zed_credentials_provider v0.1.0 (D:\a\zed\zed\crates\zed_credentials_provider)
+   Compiling yawc v0.4.2
+   Compiling lsp v0.1.0 (D:\a\zed\zed\crates\lsp)
+   Compiling cloud_api_client v0.1.0 (D:\a\zed\zed\crates\cloud_api_client)
+   Compiling proxy_handshake v0.1.0 (D:\a\zed\zed\crates\proxy_handshake)
+   Compiling icons v0.1.0 (D:\a\zed\zed\crates\icons)
+   Compiling language v0.1.0 (D:\a\zed\zed\crates\language)
+   Compiling unicode-width v0.2.2
+   Compiling string_cache_codegen v0.6.1
+   Compiling ucd-trie v0.1.7
+   Compiling mime v0.3.17
+   Compiling dtoa v1.0.10
+   Compiling dtoa-short v0.3.5
+   Compiling worktree v0.1.0 (D:\a\zed\zed\crates\worktree)
+   Compiling web_atoms v0.2.6
+   Compiling selectors v0.37.0
+   Compiling cssparser-macros v0.6.1
+   Compiling minimal-lexical v0.2.1
+   Compiling icu_locale_fallback_data v2.3.0
+   Compiling unicode-general-category v1.1.0
+   Compiling client v0.1.0 (D:\a\zed\zed\crates\client)
+   Compiling nom v7.1.3
+   Compiling cssparser v0.36.0
+   Compiling htmlize v1.1.0
+   Compiling string_cache v0.9.0
+   Compiling node_runtime v0.1.0 (D:\a\zed\zed\crates\node_runtime)
+   Compiling itertools v0.15.0
+   Compiling servo_arc v0.4.3
+   Compiling optfield v0.4.0
+   Compiling icu_collator_data v2.3.0
+   Compiling lalrpop-util v0.23.1
+   Compiling documented-macros v0.10.0
+   Compiling dap-types v0.0.1 (https://github.com/zed-industries/dap-types?rev=1b461b310481d01e02b2603c16d7144b926339f8#1b461b31)
+   Compiling pastey v0.1.1
+   Compiling ui v0.1.0 (D:\a\zed\zed\crates\ui)
+   Compiling pulldown-cmark v0.13.4
+   Compiling icu_locale_fallback v2.3.0
+   Compiling markup5ever v0.39.0
+   Compiling lol_html v3.0.1
+   Compiling documented v0.10.0
+   Compiling json5 v1.3.1
+   Compiling granit-parser v1.0.0
+   Compiling component v0.1.0 (D:\a\zed\zed\crates\component)
+   Compiling menu v0.1.0 (D:\a\zed\zed\crates\menu)
+   Compiling dugong-graphlib v0.8.0-alpha.5
+   Compiling dap v0.1.0 (D:\a\zed\zed\crates\dap)
+   Compiling ui_macros v0.1.0 (D:\a\zed\zed\crates\ui_macros)
+   Compiling ryu-js v1.0.2
+   Compiling merman-core v0.8.0-alpha.5
+   Compiling dugong v0.8.0-alpha.5
+   Compiling icu_collator v2.3.0
+   Compiling roughr-merman v0.12.3
+   Compiling sysinfo v0.39.6
+   Compiling env_var v0.1.0 (D:\a\zed\zed\crates\env_var)
+   Compiling manatee v0.8.0-alpha.5
+   Compiling quick-xml v0.41.0
+   Compiling unicode-linebreak v0.1.5
+   Compiling extension v0.1.0 (D:\a\zed\zed\crates\extension)
+   Compiling merman-render v0.8.0-alpha.5
+   Compiling xml5ever v0.39.0
+   Compiling html5ever v0.39.0
+   Compiling oauth_callback_server v0.1.0 (D:\a\zed\zed\crates\oauth_callback_server)
+   Compiling theme_settings v0.1.0 (D:\a\zed\zed\crates\theme_settings)
+   Compiling cursor-icon v1.2.0
+   Compiling bit-vec v0.8.0
+   Compiling bit-set v0.8.0
+   Compiling vte v0.15.0
+   Compiling markup5ever_rcdom v0.39.0+unofficial
+   Compiling home v0.5.11
+   Compiling miow v0.6.1
+   Compiling alacritty_terminal v0.26.1-dev (https://github.com/zed-industries/alacritty?rev=4c129667ce56611becdc82de6e28218c80e2e88f#4c129667)
+   Compiling fancy-regex v0.19.0
+   Compiling pori v0.0.0
+   Compiling buffer_diff v0.1.0 (D:\a\zed\zed\crates\buffer_diff)
+   Compiling merman v0.8.0-alpha.5
+   Compiling mermaid_render v0.1.0 (D:\a\zed\zed\crates\mermaid_render)
+   Compiling snippet v0.1.0 (D:\a\zed\zed\crates\snippet)
+   Compiling linkify v0.10.0
+   Compiling vcpkg v0.2.15
+   Compiling markdown v0.1.0 (D:\a\zed\zed\crates\markdown)
+   Compiling libsqlite3-sys v0.30.1
+   Compiling snippet_provider v0.1.0 (D:\a\zed\zed\crates\snippet_provider)
+   Compiling wax v0.7.0
+   Compiling terminal v0.1.0 (D:\a\zed\zed\crates\terminal)
+   Compiling context_server v0.1.0 (D:\a\zed\zed\crates\context_server)
+   Compiling prettier v0.1.0 (D:\a\zed\zed\crates\prettier)
+   Compiling remote v0.1.0 (D:\a\zed\zed\crates\remote)
+   Compiling git_hosting_providers v0.1.0 (D:\a\zed\zed\crates\git_hosting_providers)
+   Compiling project v0.1.0 (D:\a\zed\zed\crates\project)
+   Compiling language_model v0.1.0 (D:\a\zed\zed\crates\language_model)
+   Compiling thread_local v1.1.9
+   Compiling indoc v2.0.6
+   Compiling unicode_categories v0.1.1
+   Compiling sqlformat v0.2.6
+   Compiling sqlez v0.1.0 (D:\a\zed\zed\crates\sqlez)
+   Compiling sqlez_macros v0.1.0 (D:\a\zed\zed\crates\sqlez_macros)
+   Compiling zed_env_vars v0.1.0 (D:\a\zed\zed\crates\zed_env_vars)
+   Compiling ui_input v0.1.0 (D:\a\zed\zed\crates\ui_input)
+   Compiling agent_settings v0.1.0 (D:\a\zed\zed\crates\agent_settings)
+   Compiling db v0.1.0 (D:\a\zed\zed\crates\db)
+   Compiling session v0.1.0 (D:\a\zed\zed\crates\session)
+   Compiling async-recursion v1.1.1
+   Compiling any_vec v0.14.0
+   Compiling file_icons v0.1.0 (D:\a\zed\zed\crates\file_icons)
+   Compiling workspace v0.1.0 (D:\a\zed\zed\crates\workspace)
+   Compiling edit_prediction_types v0.1.0 (D:\a\zed\zed\crates\edit_prediction_types)
+   Compiling multi_buffer v0.1.0 (D:\a\zed\zed\crates\multi_buffer)
+   Compiling vim_mode_setting v0.1.0 (D:\a\zed\zed\crates\vim_mode_setting)
+   Compiling ordered-float v5.5.0
+   Compiling fearless_simd v0.4.1
+   Compiling betlang v0.1.1
+   Compiling language_detection v0.1.0 (D:\a\zed\zed\crates\language_detection)
+   Compiling breadcrumbs v0.1.0 (D:\a\zed\zed\crates\breadcrumbs)
+   Compiling emojis v0.9.0
+   Compiling editor v0.1.0 (D:\a\zed\zed\crates\editor)
+   Compiling picker v0.1.0 (D:\a\zed\zed\crates\picker)
+   Compiling msvc_spectre_libs v0.1.3
+   Compiling glob v0.3.3
+   Compiling ahash v0.8.12
+   Compiling outref v0.5.2
+   Compiling vsimd v0.8.0
+   Compiling pet-fs v0.1.0 (https://github.com/zed-industries/python-environment-tools.git?rev=5aad7164bfc2a58977b103c8ef8fdd7302ed2e9f#5aad7164)
+   Compiling is-terminal v0.4.16
+   Compiling humantime v2.3.0
+   Compiling env_logger v0.10.2
+   Compiling pet-core v0.1.0 (https://github.com/zed-industries/python-environment-tools.git?rev=5aad7164bfc2a58977b103c8ef8fdd7302ed2e9f#5aad7164)
+   Compiling http v0.2.12
+   Compiling http-body v0.4.6
+   Compiling base64-simd v0.8.0
+   Compiling bytes-utils v0.1.4
+   Compiling aws-smithy-types v1.4.9
+   Compiling ident_case v1.0.1
+   Compiling pet-python-utils v0.1.0 (https://github.com/zed-industries/python-environment-tools.git?rev=5aad7164bfc2a58977b103c8ef8fdd7302ed2e9f#5aad7164)
+   Compiling command_palette_hooks v0.1.0 (D:\a\zed\zed\crates\command_palette_hooks)
+   Compiling aws-smithy-async v1.2.14
+   Compiling aws-smithy-runtime-api-macros v1.0.0
+   Compiling aws-smithy-runtime-api v1.12.3
+   Compiling bzip2-sys v0.1.13+1.0.8
+   Compiling zstd-safe v5.0.2+zstd.1.5.2
+   Compiling sync_wrapper v1.0.2
+   Compiling inout v0.1.4
+   Compiling tower-layer v0.3.3
+   Compiling scratch v1.0.9 (D:\a\zed\zed\tooling\corgi\patches\scratch)
+   Compiling io-lifetimes v2.0.4
+   Compiling io-lifetimes v3.0.1
+   Compiling base64ct v1.8.0
+   Compiling password-hash v0.4.2
+   Compiling tower v0.5.2
+   Compiling rustls-native-certs v0.8.3
+   Compiling cipher v0.4.4
+   Compiling hmac v0.12.1
+   Compiling link-cplusplus v1.0.12
+   Compiling io-extras v0.19.0
+   Compiling tower-http v0.6.11
+   Compiling pbkdf2 v0.11.0
+   Compiling zstd v0.11.2+zstd.1.5.2
+   Compiling bzip2 v0.4.4
+   Compiling aes v0.8.4
+   Compiling hyper-rustls v0.27.9
+   Compiling darling_core v0.23.0
+   Compiling pbjson-build v0.9.0
+   Compiling cap-primitives v4.0.3
+   Compiling cxxbridge-flags v1.0.187
+   Compiling constant_time_eq v0.1.5
+   Compiling zip v0.6.6
+   Compiling codespan-reporting v0.13.0
+   Compiling darling_macro v0.23.0
+   Compiling cxx v1.0.187
+   Compiling pbjson-types v0.9.0
+   Compiling reqwest v0.12.24
+   Compiling fs2 v0.4.3
+   Compiling fs-set-times v0.20.3
+   Compiling winx v0.36.4
+   Compiling num-bigint v0.4.8
+   Compiling crossbeam-channel v0.5.15
+   Compiling ambient-authority v0.0.2
+   Compiling cap-std v4.0.3
+   Compiling maybe-owned v0.3.4
+   Compiling num-rational v0.4.2
+   Compiling webrtc-sys-build v0.3.13 (https://github.com/zed-industries/livekit-rust-sdks?rev=0a1c519cfce9b365229026b55de9b9dbdb6fed3c#0a1c519c)
+   Compiling darling v0.23.0
+   Compiling cxx-build v1.0.187
+   Compiling pet-virtualenv v0.1.0 (https://github.com/zed-industries/python-environment-tools.git?rev=5aad7164bfc2a58977b103c8ef8fdd7302ed2e9f#5aad7164)
+   Compiling hashbrown v0.14.5
+   Compiling phf_shared v0.11.3
+   Compiling tokio-stream v0.1.17
+   Compiling symphonia-core v0.5.5
+   Compiling pbjson v0.9.0
+   Compiling portable-atomic v1.11.1
+   Compiling cpufeatures v0.3.0
+   Compiling cap-fs-ext v4.0.3
+   Compiling webrtc-sys v0.3.23 (https://github.com/zed-industries/livekit-rust-sdks?rev=0a1c519cfce9b365229026b55de9b9dbdb6fed3c#0a1c519c)
+   Compiling chacha20 v0.10.1
+   Compiling livekit-runtime v0.4.0 (https://github.com/zed-industries/livekit-rust-sdks?rev=0a1c519cfce9b365229026b55de9b9dbdb6fed3c#0a1c519c)
+   Compiling phf_generator v0.11.3
+   Compiling hashlink v0.8.4
+   Compiling aws-smithy-eventstream v0.60.20
+   Compiling channel v0.1.0 (D:\a\zed\zed\crates\channel)
+   Compiling cxxbridge-macro v1.0.187
+   Compiling moka v0.12.11
+   Compiling livekit-protocol v0.7.1 (https://github.com/zed-industries/livekit-rust-sdks?rev=0a1c519cfce9b365229026b55de9b9dbdb6fed3c#0a1c519c)
+   Compiling aws-smithy-http v0.63.4
+   Compiling yaml-rust2 v0.8.1
+   Compiling phf_macros v0.11.3
+   Compiling rand v0.10.2
+   Compiling symphonia-metadata v0.5.5
+   Compiling aws-credential-types v1.2.12
+   Compiling picker_preview v0.1.0 (D:\a\zed\zed\crates\picker_preview)
+   Compiling wasmtime-wasi-io v48.0.1
+   Compiling anthropic v0.1.0 (D:\a\zed\zed\crates\anthropic)
+   Compiling open_ai v0.1.0 (D:\a\zed\zed\crates\open_ai)
+   Compiling aws-types v1.3.12
+   Compiling windows-registry v0.6.1
+   Compiling extended v0.1.0
+   Compiling unsafe-libyaml v0.2.11
+   Compiling cpal v0.18.2 (https://github.com/RustAudio/cpal?rev=e1612d5d98152f8dc2a62e1b51ef7cbf4f7f26b7#e1612d5d)
+   Compiling extension_host v0.1.0 (D:\a\zed\zed\crates\extension_host)
+   Compiling tagptr v0.2.0
+   Compiling serde_yaml_ng v0.10.0
+   Compiling symphonia-format-riff v0.5.5
+   Compiling wasmtime-wasi v48.0.1
+   Compiling phf v0.11.3
+   Compiling notifications v0.1.0 (D:\a\zed\zed\crates\notifications)
+   Compiling symphonia-codec-pcm v0.5.5
+   Compiling aws-smithy-observability v0.2.5
+   Compiling auto_update v0.1.0 (D:\a\zed\zed\crates\auto_update)
+   Compiling bincode v1.3.3
+   Compiling dasp_sample v0.11.0
+   Compiling pest v2.8.3
+   Compiling aws-sigv4 v1.4.0
+   Compiling aws-smithy-runtime v1.10.1
+   Compiling symphonia v0.5.5
+   Compiling doxygen-rs v0.4.2
+   Compiling copilot_chat v0.1.0 (D:\a\zed\zed\crates\copilot_chat)
+   Compiling libwebrtc v0.3.26 (https://github.com/zed-industries/livekit-rust-sdks?rev=0a1c519cfce9b365229026b55de9b9dbdb6fed3c#0a1c519c)
+   Compiling aws-smithy-schema v0.1.0
+   Compiling darling_core v0.20.11
+   Compiling hound v3.5.1
+   Compiling rtrb v0.3.2
+   Compiling rodio v0.22.2 (https://github.com/RustAudio/rodio?rev=3ee9745862279ce1d18db593155016e7ce024aeb#3ee97458)
+   Compiling darling_macro v0.20.11
+   Compiling aws-smithy-json v0.62.7
+   Compiling copilot v0.1.0 (D:\a\zed\zed\crates\copilot)
+   Compiling aws-runtime v1.7.0
+   Compiling lmdb-master-sys v0.2.5
+   Compiling pest_meta v2.8.3
+   Compiling serde_with_macros v3.22.0
+   Compiling pet-jsonrpc v0.1.0 (https://github.com/zed-industries/python-environment-tools.git?rev=5aad7164bfc2a58977b103c8ef8fdd7302ed2e9f#5aad7164)
+   Compiling regex-lite v0.1.8
+   Compiling pet-reporter v0.1.0 (https://github.com/zed-industries/python-environment-tools.git?rev=5aad7164bfc2a58977b103c8ef8fdd7302ed2e9f#5aad7164)
+   Compiling serde_with v3.22.0
+   Compiling pest_generator v2.8.3
+   Compiling copilot_ui v0.1.0 (D:\a\zed\zed\crates\copilot_ui)
+   Compiling darling v0.20.11
+   Compiling audio v0.1.0 (D:\a\zed\zed\crates\audio)
+   Compiling remote_connection v0.1.0 (D:\a\zed\zed\crates\remote_connection)
+   Compiling ai_onboarding v0.1.0 (D:\a\zed\zed\crates\ai_onboarding)
+   Compiling proxyvars v0.2.0
+   Compiling ollama v0.1.0 (D:\a\zed\zed\crates\ollama)
+   Compiling heed v0.21.0
+   Compiling peg-runtime v0.8.5
+   Compiling heed-traits v0.20.0
+   Compiling heed-types v0.21.0
+   Compiling peg-macros v0.8.5
+   Compiling futures-concurrency v7.7.1
+   Compiling http_proxy v0.1.0 (D:\a\zed\zed\crates\http_proxy)
+   Compiling cached_proc_macro v0.25.0
+   Compiling pest_derive v2.8.3
+   Compiling agent-client-protocol-schema v1.12.0
+   Compiling search v0.1.0 (D:\a\zed\zed\crates\search)
+   Compiling bon-macros v3.8.2
+   Compiling open_path_prompt v0.1.0 (D:\a\zed\zed\crates\open_path_prompt)
+   Compiling synchronoise v1.0.1
+   Compiling page_size v0.6.0
+   Compiling agent-client-protocol-derive v3.4.0
+   Compiling cached_proc_macro_types v0.1.1
+   Compiling cached v0.56.0
+   Compiling peg v0.8.5
+   Compiling agent-client-protocol v3.4.0
+   Compiling handlebars v4.5.0
+   Compiling bon v3.8.2
+   Compiling sandbox v0.1.0 (D:\a\zed\zed\crates\sandbox)
+   Compiling git_ui_core v0.1.0 (D:\a\zed\zed\crates\git_ui_core)
+   Compiling pet-conda v0.1.0 (https://github.com/zed-industries/python-environment-tools.git?rev=5aad7164bfc2a58977b103c8ef8fdd7302ed2e9f#5aad7164)
+   Compiling tokio-tungstenite v0.28.0
+   Compiling agent_skills v0.1.0 (D:\a\zed\zed\crates\agent_skills)
+   Compiling action_log v0.1.0 (D:\a\zed\zed\crates\action_log)
+   Compiling assets v0.1.0 (D:\a\zed\zed\crates\assets)
+   Compiling toml_datetime v0.6.11
+   Compiling serde_spanned v0.6.9
+   Compiling utf8-chars v3.0.6
+   Compiling num-complex v0.4.6
+   Compiling xmlparser v0.13.6
+   Compiling indenter v0.3.4
+   Compiling toml_write v0.1.2
+   Compiling livekit v0.7.32 (https://github.com/zed-industries/livekit-rust-sdks?rev=0a1c519cfce9b365229026b55de9b9dbdb6fed3c#0a1c519c)
+   Compiling toml_edit v0.22.27
+   Compiling brush-parser v0.3.0
+   Compiling aws-smithy-xml v0.60.15
+   Compiling num v0.4.3
+   Compiling prompt_store v0.1.0 (D:\a\zed\zed\crates\prompt_store)
+   Compiling acp_thread v0.1.0 (D:\a\zed\zed\crates\acp_thread)
+   Compiling livekit-api v0.4.14 (https://github.com/zed-industries/livekit-rust-sdks?rev=0a1c519cfce9b365229026b55de9b9dbdb6fed3c#0a1c519c)
+   Compiling aws-smithy-query v0.60.15
+   Compiling platform_title_bar v0.1.0 (D:\a\zed\zed\crates\platform_title_bar)
+   Compiling html_to_markdown v0.1.0 (D:\a\zed\zed\crates\html_to_markdown)
+   Compiling google_ai v0.1.0 (D:\a\zed\zed\crates\google_ai)
+   Compiling web_search v0.1.0 (D:\a\zed\zed\crates\web_search)
+   Compiling bmrng v0.5.2
+   Compiling windows_resources v0.1.0 (D:\a\zed\zed\crates\windows_resources)
+   Compiling windows-result v0.2.0
+   Compiling scroll_derive v0.12.1
+   Compiling libloading v0.8.9
+   Compiling similar v2.7.0
+   Compiling borrow-or-share v0.2.4
+   Compiling fluent-uri v0.4.1
+   Compiling edit_prediction_metrics v0.1.0 (D:\a\zed\zed\crates\edit_prediction_metrics)
+   Compiling scroll v0.12.0
+   Compiling windows-strings v0.1.0
+   Compiling agent_servers v0.1.0 (D:\a\zed\zed\crates\agent_servers)
+   Compiling aws-sdk-sts v1.98.0
+   Compiling shell_command_parser v0.1.0 (D:\a\zed\zed\crates\shell_command_parser)
+   Compiling fraction v0.16.0
+   Compiling toml v0.8.23
+   Compiling aws-sdk-bedrockruntime v1.125.0
+   Compiling aws-sdk-ssooidc v1.96.0
+   Compiling aws-sdk-sso v1.94.0
+   Compiling terminal_view v0.1.0 (D:\a\zed\zed\crates\terminal_view)
+   Compiling streaming_diff v0.1.0 (D:\a\zed\zed\crates\streaming_diff)
+   Compiling edit_prediction_context v0.1.0 (D:\a\zed\zed\crates\edit_prediction_context)
+   Compiling x_ai v0.1.0 (D:\a\zed\zed\crates\x_ai)
+   Compiling windows-interface v0.58.0
+   Compiling windows-implement v0.58.0
+   Compiling tree-sitter-rust v0.24.2
+   Compiling fastrand v1.9.0
+   Compiling num-cmp v0.1.0
+   Compiling micromap v0.3.0
+   Compiling bytecount v0.6.9
+   Compiling jsonschema-value v0.51.0
+   Compiling referencing v0.51.0
+   Compiling mime_guess v2.0.5
+   Compiling futures-lite v1.13.0
+   Compiling windows-core v0.58.0
+   Compiling x_ai_subscribed v0.1.0 (D:\a\zed\zed\crates\x_ai_subscribed)
+   Compiling edit_prediction v0.1.0 (D:\a\zed\zed\crates\edit_prediction)
+   Compiling agent v0.1.0 (D:\a\zed\zed\crates\agent)
+   Compiling aws-config v1.8.14
+   Compiling bedrock v0.1.0 (D:\a\zed\zed\crates\bedrock)
+   Compiling winresource v0.1.23
+   Compiling livekit_client v0.1.0 (D:\a\zed\zed\crates\livekit_client)
+   Compiling windows-bindgen v0.61.1
+   Compiling language_models_cloud v0.1.0 (D:\a\zed\zed\crates\language_models_cloud)
+   Compiling opencode v0.1.0 (D:\a\zed\zed\crates\opencode)
+   Compiling dev_container v0.1.0 (D:\a\zed\zed\crates\dev_container)
+   Compiling openai_subscribed v0.1.0 (D:\a\zed\zed\crates\openai_subscribed)
+   Compiling open_router v0.1.0 (D:\a\zed\zed\crates\open_router)
+   Compiling aws_http_client v0.1.0 (D:\a\zed\zed\crates\aws_http_client)
+   Compiling uuid-simd v0.8.0
+   Compiling llama_cpp v0.1.0 (D:\a\zed\zed\crates\llama_cpp)
+   Compiling lmstudio v0.1.0 (D:\a\zed\zed\crates\lmstudio)
+   Compiling jupyter-protocol v1.4.0
+   Compiling deepseek v0.1.0 (D:\a\zed\zed\crates\deepseek)
+   Compiling mistral v0.1.0 (D:\a\zed\zed\crates\mistral)
+   Compiling debugid v0.8.0
+   Compiling jsonschema-regex v0.51.0
+   Compiling range-map v0.2.0
+   Compiling email_address v0.2.9
+   Compiling num-derive v0.4.2
+   Compiling smart-default v0.7.1
+   Compiling tree-sitter-bash v0.25.1
+   Compiling tree-sitter-cpp v0.23.4 (https://github.com/tree-sitter/tree-sitter-cpp?rev=5cb9b693cfd7bfacab1d9ff4acac1a4150700609#5cb9b693)
+   Compiling tree-sitter-gowork v0.0.1 (https://github.com/zed-industries/tree-sitter-go-work?rev=acb0617bf7f4fda02c6217676cc64acb89536dc7#acb0617b)
+   Compiling tree-sitter-typescript v0.23.2 (https://github.com/zed-industries/tree-sitter-typescript?rev=e2c53597d6a5d9cf7bbe8dccde576fe1e46c5899#e2c53597)
+   Compiling tree-sitter-python v0.25.0
+   Compiling tree-sitter-c v0.24.1
+   Compiling tree-sitter-gitcommit v0.0.1 (https://github.com/zed-industries/tree-sitter-git-commit?rev=88309716a69dd13ab83443721ba6e0b491d37ee9#88309716)
+   Compiling tree-sitter-css v0.23.2
+   Compiling tree-sitter-regex v0.24.3
+   Compiling tree-sitter-go v0.25.0
+   Compiling tree-sitter-md v0.3.2 (https://github.com/zed-industries/tree-sitter-markdown?rev=b596e737286780d7bfa9fcddceaeeb754574b352#b596e737)
+   Compiling tree-sitter-yaml v0.6.1 (https://github.com/zed-industries/tree-sitter-yaml?rev=baff0b51c64ef6a1fb1f8390f3ad6015b83ec13a#baff0b51)
+   Compiling tree-sitter-gomod v1.1.1 (https://github.com/camdencheek/tree-sitter-go-mod?rev=2e886870578eeba1927a2dc4bd2e2b3f598c5f9a#2e886870)
+   Compiling tree-sitter-jsdoc v0.23.2
+   Compiling tree-sitter-diff v0.1.0
+   Compiling crash-context v0.8.0
+   Compiling saa v5.4.9
+   Compiling encode_unicode v1.0.0
+   Compiling plain v0.2.3
+   Compiling minidump-writer v0.13.0
+   Compiling sdd v4.6.2
+   Compiling scc v3.5.6
+   Compiling goblin v0.9.3
+   Compiling console v0.16.3
+   Compiling minidump-common v0.26.1
+   Compiling jsonschema v0.51.0
+   Compiling language_models v0.1.0 (D:\a\zed\zed\crates\language_models)
+   Compiling pet-windows-store v0.1.0 (https://github.com/zed-industries/python-environment-tools.git?rev=5aad7164bfc2a58977b103c8ef8fdd7302ed2e9f#5aad7164)
+   Compiling recent_projects v0.1.0 (D:\a\zed\zed\crates\recent_projects)
+   Compiling wprcontrol v0.1.0 (https://github.com/zed-industries/wprcontrol?rev=cd811f7#cd811f7d)
+   Compiling call v0.1.0 (D:\a\zed\zed\crates\call)
+   Compiling pet v0.1.0 (https://github.com/zed-industries/python-environment-tools.git?rev=5aad7164bfc2a58977b103c8ef8fdd7302ed2e9f#5aad7164)
+   Compiling gpui_windows v0.1.0 (D:\a\zed\zed\crates\gpui_windows)
+   Compiling windows v0.58.0
+   Compiling async-dispatcher v0.1.2
+   Compiling cli v0.1.0 (D:\a\zed\zed\crates\cli)
+   Compiling command_palette v0.1.0 (D:\a\zed\zed\crates\command_palette)
+   Compiling sharded-slab v0.1.7
+   Compiling accesskit_consumer v0.38.0
+   Compiling windows-strings v0.3.1
+   Compiling clap_complete v4.5.59
+   Compiling tracing-log v0.2.0
+   Compiling tracing-serde v0.2.0
+   Compiling matchers v0.2.0
+   Compiling asynchronous-codec v0.7.0
+   Compiling error-graph v0.1.1
+   Compiling human_bytes v0.4.3
+   Compiling shell-words v1.1.0
+   Compiling failspot v0.2.0
+   Compiling dialoguer v0.12.0
+   Compiling system_specs v0.1.0 (D:\a\zed\zed\crates\system_specs)
+   Compiling zeromq v0.5.0
+   Compiling tracing-subscriber v0.3.22
+   Compiling clap_complete_nushell v4.6.0
+   Compiling windows-registry v0.4.0
+   Compiling accesskit_windows v0.34.0
+   Compiling pet-poetry v0.1.0 (https://github.com/zed-industries/python-environment-tools.git?rev=5aad7164bfc2a58977b103c8ef8fdd7302ed2e9f#5aad7164)
+   Compiling ipc-channel v0.19.0
+   Compiling agent_ui v0.1.0 (D:\a\zed\zed\crates\agent_ui)
+   Compiling pet-windows-registry v0.1.0 (https://github.com/zed-industries/python-environment-tools.git?rev=5aad7164bfc2a58977b103c8ef8fdd7302ed2e9f#5aad7164)
+   Compiling codestral v0.1.0 (D:\a\zed\zed\crates\codestral)
+error[E0308]: mismatched types
+    --> crates\agent_ui\src\mention_set.rs:1600:60
+     |
+1600 | ...                   mention_set.expand_mention(edited_range);
+     |                                   -------------- ^^^^^^^^^^^^ expected `Range<Anchor>`, found `(Anchor, Anchor)`
+     |                                   |
+     |                                   arguments to this method are incorrect
+     |
+     = note: expected struct `std::ops::Range<editor::Anchor>`
+                 found tuple `(editor::Anchor, editor::Anchor)`
+note: method defined here
+    --> crates\agent_ui\src\mention_set.rs:188:19
+     |
+ 188 |     pub(crate) fn expand_mention(&mut self, range: Range<Anchor>) {
+     |                   ^^^^^^^^^^^^^^            --------------------
+
+error[E0382]: borrow of moved value: `path`
+    --> crates\agent_ui\src\completion_provider.rs:776:28
+     |
+ 742 |         path: PathBuf,
+     |         ---- move occurs because `path` has type `std::path::PathBuf`, which does not implement the `Copy` trait
+...
+ 770 |             MentionUri::Directory { abs_path: path }
+     |                                               ---- value moved here
+ 771 |         } else {
+ 772 |             MentionUri::File { abs_path: path }
+     |                                          ---- value moved here
+...
+ 776 |         let display_path = path.display().to_string();
+     |                            ^^^^ value borrowed here after move
+     |
+     = note: borrow occurs due to deref coercion to `std::path::Path`
+note: deref defined here
+    --> C:\Users\runneradmin\.rustup\toolchains\1.98.1-x86_64-pc-windows-msvc\lib/rustlib/src/rust\library\std\src\path.rs:2093:5
+     |
+2093 |     type Target = Path;
+     |     ^^^^^^^^^^^
+help: consider cloning the value if the performance cost is acceptable
+     |
+ 772 |             MentionUri::File { abs_path: path.clone() }
+     |                                              ++++++++
+help: consider cloning the value if the performance cost is acceptable
+     |
+ 770 |             MentionUri::Directory { abs_path: path.clone() }
+     |                                                   ++++++++
+
+   Compiling pet-global-virtualenvs v0.1.0 (https://github.com/zed-industries/python-environment-tools.git?rev=5aad7164bfc2a58977b103c8ef8fdd7302ed2e9f#5aad7164)
+   Compiling pet-env-var-path v0.1.0 (https://github.com/zed-industries/python-environment-tools.git?rev=5aad7164bfc2a58977b103c8ef8fdd7302ed2e9f#5aad7164)
+   Compiling pet-pixi v0.1.0 (https://github.com/zed-industries/python-environment-tools.git?rev=5aad7164bfc2a58977b103c8ef8fdd7302ed2e9f#5aad7164)
+   Compiling pet-pyenv v0.1.0 (https://github.com/zed-industries/python-environment-tools.git?rev=5aad7164bfc2a58977b103c8ef8fdd7302ed2e9f#5aad7164)
+Some errors have detailed explanations: E0308, E0382.
+For more information about an error, try `rustc --explain E0308`.
+error: could not compile `agent_ui` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
