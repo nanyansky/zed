@@ -1588,10 +1588,8 @@ impl Render for LoadingContext {
                             .0;
                         let start_offset =
                             end_offset.saturating_sub(replacement.chars().count());
-                        (
-                            snapshot.anchor_before(MultiBufferOffset(start_offset)),
-                            snapshot.anchor_after(MultiBufferOffset(end_offset)),
-                        )
+                        snapshot.anchor_before(MultiBufferOffset(start_offset))
+                            ..snapshot.anchor_after(MultiBufferOffset(end_offset))
                     });
 
                     if let Some(mention_set) = mention_set.clone() {

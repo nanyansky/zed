@@ -766,14 +766,13 @@ impl<T: PromptCompletionProviderDelegate> PromptCompletionProvider<T> {
             cx,
         );
 
+        let display_path = path.display().to_string();
         let uri = if is_directory {
             MentionUri::Directory { abs_path: path }
         } else {
             MentionUri::File { abs_path: path }
         };
         let icon = uri.icon_path(cx);
-
-        let display_path = path.display().to_string();
         let new_text = if is_directory {
             format!("@{display_path}/")
         } else {
