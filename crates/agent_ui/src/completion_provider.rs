@@ -1217,13 +1217,23 @@ impl<T: PromptCompletionProviderDelegate> PromptCompletionProvider<T> {
 
         match mode {
             Some(PromptContextType::File) => {
-                let search_files_task = search_files(query, cancellation_flag, &workspace, cx);
+                let search_files_task =
+                    search_files(query.clone(), cancellation_flag.clone(), &workspace, cx);
+                // A composed directory path like src/ is not a useful fuzzy
+                // query, so list its children as well.
+                let path_task = query.contains('/').then(|| {
+                    search_external_paths(query.clone(), cancellation_flag.clone(), &workspace, cx)
+                });
                 cx.background_spawn(async move {
-                    search_files_task
+                    let mut matches = search_files_task
                         .await
                         .into_iter()
                         .map(Match::File)
-                        .collect()
+                        .collect::<Vec<_>>();
+                    if let Some(path_task) = path_task {
+                        matches.extend(path_task.await.into_iter().map(Match::Path));
+                    }
+                    matches
                 })
             }
 
@@ -1314,7 +1324,10 @@ impl<T: PromptCompletionProviderDelegate> PromptCompletionProvider<T> {
                 let executor = cx.background_executor().clone();
 
                 let search_files_task =
-                    search_files(query.clone(), cancellation_flag, &workspace, cx);
+                    search_files(query.clone(), cancellation_flag.clone(), &workspace, cx);
+                let path_task = query.contains('/').then(|| {
+                    search_external_paths(query.clone(), cancellation_flag.clone(), &workspace, cx)
+                });
 
                 let entries = self.available_context_picker_entries(&workspace, cx);
                 let entry_candidates = entries
@@ -1338,6 +1351,10 @@ impl<T: PromptCompletionProviderDelegate> PromptCompletionProvider<T> {
                         .into_iter()
                         .map(Match::File)
                         .collect::<Vec<_>>();
+
+                    if let Some(path_task) = path_task {
+                        matches.extend(path_task.await.into_iter().map(Match::Path));
+                    }
 
                     let entry_matches = fuzzy::match_strings(
                         &entry_candidates,
@@ -2124,6 +2141,7 @@ fn confirm_directory_completion_callback<T: PromptCompletionProviderDelegate>(
     workspace: Entity<Workspace>,
 ) -> Arc<dyn Fn(CompletionIntent, &mut Window, &mut App) -> bool + Send + Sync> {
     Arc::new(move |intent, window, cx| {
+        log::info!("mention: directory completion intent={intent:?}");
         if matches!(intent, CompletionIntent::Compose) {
             return true;
         }

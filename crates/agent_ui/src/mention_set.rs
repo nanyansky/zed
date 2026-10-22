@@ -1542,10 +1542,13 @@ impl Render for LoadingContext {
                 let uri = self.mention_uri.clone();
                 let mention_set = self.mention_set.clone();
                 move |window, cx| {
+                    log::info!("mention: click handler fired");
                     let Some(editor) = editor.upgrade() else {
+                        log::info!("mention: editor released");
                         return;
                     };
                     let Some(uri) = uri.clone() else {
+                        log::info!("mention: no uri");
                         return;
                     };
                     let Some(editable_path) = mention_set.clone().and_then(|mention_set| {
@@ -1559,6 +1562,7 @@ impl Render for LoadingContext {
                         return;
                     };
 
+                    log::info!("mention: expanding to @{editable_path}");
                     // Show the plain path instead of the markdown link so it can
                     // be edited or completed further.
                     let replacement = format!("@{editable_path}");
