@@ -10,7 +10,7 @@ use acp_thread::MentionUri;
 use agent_client_protocol::schema::v2 as acp;
 use anyhow::Result;
 use editor::{CompletionProvider, Editor, code_context_menus::COMPLETION_MENU_MAX_WIDTH};
-use futures::FutureExt as _;
+use futures::{FutureExt as _, StreamExt as _};
 use fuzzy::{PathMatch, StringMatch, StringMatchCandidate};
 use gpui::{
     App, BackgroundExecutor, Entity, Focusable, Hsla, SharedString, Task, WeakEntity, Window,
@@ -299,6 +299,15 @@ pub(crate) enum Match {
     Skill(AvailableSkill),
     Entry(EntryMatch),
     BranchDiff(BranchDiffMatch),
+    Path(ExternalPathMatch),
+}
+
+/// A path outside the worktree index, produced by the `../` / absolute-path
+/// completion mode.
+#[derive(Debug, Clone)]
+pub struct ExternalPathMatch {
+    pub path: PathBuf,
+    pub is_dir: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -317,6 +326,7 @@ impl Match {
             Match::Skill(_) => 1.,
             Match::Fetch(_) => 1.,
             Match::BranchDiff(_) => 1.,
+            Match::Path(_) => 1.,
         }
     }
 }
@@ -681,7 +691,13 @@ impl<T: PromptCompletionProviderDelegate> PromptCompletionProvider<T> {
             crease_icon_path
         };
 
-        let new_text = format!("{} ", uri.as_link());
+        // A directory keeps a trailing slash and no space so that pressing Tab
+        // (`CompletionIntent::Compose`) can continue completing inside it.
+        let new_text = if is_directory {
+            format!("{}/", uri.as_link())
+        } else {
+            format!("{} ", uri.as_link())
+        };
         let new_text_len = new_text.len();
         Some(Completion {
             replace_range: source_range.clone(),
@@ -694,16 +710,109 @@ impl<T: PromptCompletionProviderDelegate> PromptCompletionProvider<T> {
             match_start: None,
             snippet_deduplication_key: None,
             insert_text_mode: None,
-            confirm: Some(confirm_completion_callback(
-                file_name,
-                source_range.start,
-                new_text_len - 1,
-                uri,
-                source,
-                editor,
-                mention_set,
-                workspace,
-            )),
+            confirm: Some(if is_directory {
+                confirm_directory_completion_callback(
+                    file_name,
+                    source_range.start,
+                    new_text_len,
+                    uri,
+                    source,
+                    editor,
+                    mention_set,
+                    workspace,
+                )
+            } else {
+                confirm_completion_callback(
+                    file_name,
+                    source_range.start,
+                    new_text_len - 1,
+                    uri,
+                    source,
+                    editor,
+                    mention_set,
+                    workspace,
+                )
+            }),
+            group: None,
+        })
+    }
+
+    /// Builds a completion for a path outside the worktree index.
+    fn completion_for_absolute_path(
+        path: PathBuf,
+        is_directory: bool,
+        source_range: Range<Anchor>,
+        source: Arc<T>,
+        editor: WeakEntity<Editor>,
+        mention_set: WeakEntity<MentionSet>,
+        workspace: Entity<Workspace>,
+        label_max_chars: usize,
+        cx: &mut App,
+    ) -> Option<Completion> {
+        let file_name = path
+            .file_name()
+            .map(|name| name.to_string_lossy().into_owned())
+            .unwrap_or_else(|| path.display().to_string());
+        let directory = path
+            .parent()
+            .map(|parent| parent.display().to_string())
+            .filter(|parent| !parent.is_empty());
+        let label = build_code_label_for_path(
+            &file_name,
+            directory.as_deref(),
+            None,
+            label_max_chars,
+            cx,
+        );
+
+        let uri = if is_directory {
+            MentionUri::Directory { abs_path: path }
+        } else {
+            MentionUri::File { abs_path: path }
+        };
+        let icon = uri.icon_path(cx);
+
+        let new_text = if is_directory {
+            format!("{}/", uri.as_link())
+        } else {
+            format!("{} ", uri.as_link())
+        };
+        let new_text_len = new_text.len();
+
+        Some(Completion {
+            replace_range: source_range.clone(),
+            new_text,
+            label,
+            documentation: None,
+            source: project::CompletionSource::Custom,
+            icon_path: Some(icon),
+            icon_color: None,
+            match_start: None,
+            snippet_deduplication_key: None,
+            insert_text_mode: None,
+            confirm: Some(if is_directory {
+                confirm_directory_completion_callback(
+                    file_name,
+                    source_range.start,
+                    new_text_len,
+                    uri,
+                    source,
+                    editor,
+                    mention_set,
+                    workspace,
+                )
+            } else {
+                confirm_completion_callback(
+                    file_name,
+                    source_range.start,
+                    new_text_len - 1,
+                    uri,
+                    source,
+                    editor,
+                    mention_set,
+                    workspace,
+                )
+            }),
             group: None,
         })
     }
@@ -1099,6 +1208,12 @@ impl<T: PromptCompletionProviderDelegate> PromptCompletionProvider<T> {
         let Some(workspace) = self.workspace.upgrade() else {
             return Task::ready(Vec::default());
         };
+
+        if is_path_query(&query) {
+            let task = search_external_paths(query, cancellation_flag, &workspace, cx);
+            return cx.spawn(async move |_cx| task.await.into_iter().map(Match::Path).collect());
+        }
+
         match mode {
             Some(PromptContextType::File) => {
                 let search_files_task = search_files(query, cancellation_flag, &workspace, cx);
@@ -1795,6 +1910,19 @@ impl<T: PromptCompletionProviderDelegate> CompletionProvider for PromptCompletio
                                             cx,
                                         )
                                     }
+                                    Match::Path(ExternalPathMatch { path, is_dir }) => {
+                                        Self::completion_for_absolute_path(
+                                            path,
+                                            is_dir,
+                                            source_range.clone(),
+                                            source.clone(),
+                                            editor.clone(),
+                                            mention_set.clone(),
+                                            workspace.clone(),
+                                            label_max_chars,
+                                            cx,
+                                        )
+                                    }
                                     Match::Symbol(SymbolMatch { symbol, .. }) => {
                                         Self::completion_for_symbol(
                                             symbol,
@@ -1958,6 +2086,58 @@ fn confirm_completion_callback<T: PromptCompletionProviderDelegate>(
         let workspace = workspace.clone();
         window.defer(cx, move |window, cx| {
             if let Some(editor) = editor.upgrade() {
+                mention_set
+                    .clone()
+                    .update(cx, |mention_set, cx| {
+                        mention_set
+                            .confirm_mention_completion(
+                                crease_text,
+                                start,
+                                content_len,
+                                mention_uri,
+                                source.supports_images(cx),
+                                editor,
+                                &workspace,
+                                window,
+                                cx,
+                            )
+                            .detach();
+                    })
+                    .ok();
+            }
+        });
+        false
+    })
+}
+
+/// Confirmation for a directory mention: Tab (`Compose`) keeps the path as text
+/// and reopens the completion menu so the user can walk deeper; Enter commits.
+fn confirm_directory_completion_callback<T: PromptCompletionProviderDelegate>(
+    crease_text: SharedString,
+    start: Anchor,
+    content_len: usize,
+    mention_uri: MentionUri,
+    source: Arc<T>,
+    editor: WeakEntity<Editor>,
+    mention_set: WeakEntity<MentionSet>,
+    workspace: Entity<Workspace>,
+) -> Arc<dyn Fn(CompletionIntent, &mut Window, &mut App) -> bool + Send + Sync> {
+    Arc::new(move |intent, window, cx| {
+        if matches!(intent, CompletionIntent::Compose) {
+            return true;
+        }
+
+        let source = source.clone();
+        let editor = editor.clone();
+        let mention_set = mention_set.clone();
+        let crease_text = crease_text.clone();
+        let mention_uri = mention_uri.clone();
+        let workspace = workspace.clone();
+        window.defer(cx, move |window, cx| {
+            if let Some(editor) = editor.upgrade() {
+                // The directory completion inserts `@path/` without a trailing
+                // space, so add one before the fold replaces the text.
+                editor.update(cx, |editor, cx| editor.insert(" ", window, cx));
                 mention_set
                     .clone()
                     .update(cx, |mention_set, cx| {
@@ -2238,6 +2418,80 @@ pub(crate) fn pluralize(noun: &str, count: usize) -> String {
     } else {
         format!("{noun}s")
     }
+}
+
+/// Whether the mention query addresses the filesystem directly rather than the
+/// worktree index: `/abs`, `./rel` and `../rel`.
+fn is_path_query(query: &str) -> bool {
+    query.starts_with('/')
+        || query.starts_with("./")
+        || query.starts_with("../")
+        || query.contains("/../")
+}
+
+/// Lists a single directory level for path-style mentions.
+///
+/// The project search index only contains worktree entries, so paths that climb
+/// out of the project (or start at the filesystem root) never match there.
+pub(crate) fn search_external_paths(
+    query: String,
+    cancellation_flag: Arc<AtomicBool>,
+    workspace: &Entity<Workspace>,
+    cx: &App,
+) -> Task<Vec<ExternalPathMatch>> {
+    let project = workspace.read(cx).project().clone();
+    let fs = project.read(cx).fs().clone();
+    let base_dir = project
+        .read(cx)
+        .worktrees(cx)
+        .next()
+        .map(|worktree| worktree.read(cx).abs_path().to_path_buf())
+        .unwrap_or_else(|| PathBuf::from("/"));
+
+    let (directory, prefix) = match query.rfind('/') {
+        Some(index) => {
+            let (directory, prefix) = query.split_at(index + 1);
+            let directory = if directory.is_empty() {
+                PathBuf::from("/")
+            } else {
+                PathBuf::from(directory)
+            };
+            let directory = if directory.is_absolute() {
+                directory
+            } else {
+                base_dir.join(directory)
+            };
+            (directory, prefix.to_string())
+        }
+        None => (base_dir, query),
+    };
+
+    cx.background_spawn(async move {
+        let Ok(mut entries) = fs.read_dir(&directory).await else {
+            return Vec::new();
+        };
+        let prefix = prefix.to_lowercase();
+        let mut matches = Vec::new();
+        while let Some(entry) = entries.next().await {
+            if cancellation_flag.load(std::sync::atomic::Ordering::Relaxed) {
+                break;
+            }
+            let Ok(path) = entry else {
+                continue;
+            };
+            let Some(name) = path.file_name().and_then(|name| name.to_str()) else {
+                continue;
+            };
+            if !name.to_lowercase().starts_with(&prefix) {
+                continue;
+            }
+            let is_dir = fs.is_dir(&path).await;
+            matches.push(ExternalPathMatch { path, is_dir });
+        }
+        matches.sort_by(|a, b| a.path.cmp(&b.path));
+        matches.truncate(100);
+        matches
+    })
 }
 
 pub(crate) fn search_files(
