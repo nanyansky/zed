@@ -696,7 +696,7 @@ impl<T: PromptCompletionProviderDelegate> PromptCompletionProvider<T> {
         let new_text = if is_directory {
             format!("{}/", uri.as_link())
         } else {
-            format!("{} ", uri.as_link())
+            uri.as_link().to_string()
         };
         let new_text_len = new_text.len();
         Some(Completion {
@@ -710,29 +710,16 @@ impl<T: PromptCompletionProviderDelegate> PromptCompletionProvider<T> {
             match_start: None,
             snippet_deduplication_key: None,
             insert_text_mode: None,
-            confirm: Some(if is_directory {
-                confirm_directory_completion_callback(
-                    file_name,
-                    source_range.start,
-                    new_text_len,
-                    uri,
-                    source,
-                    editor,
-                    mention_set,
-                    workspace,
-                )
-            } else {
-                confirm_completion_callback(
-                    file_name,
-                    source_range.start,
-                    new_text_len - 1,
-                    uri,
-                    source,
-                    editor,
-                    mention_set,
-                    workspace,
-                )
-            }),
+            confirm: Some(confirm_path_completion_callback(
+                file_name,
+                source_range.start,
+                new_text_len,
+                uri,
+                source,
+                editor,
+                mention_set,
+                workspace,
+            )),
             group: None,
         })
     }
@@ -776,7 +763,7 @@ impl<T: PromptCompletionProviderDelegate> PromptCompletionProvider<T> {
         let new_text = if is_directory {
             format!("{}/", uri.as_link())
         } else {
-            format!("{} ", uri.as_link())
+            uri.as_link().to_string()
         };
         let new_text_len = new_text.len();
 
@@ -791,29 +778,16 @@ impl<T: PromptCompletionProviderDelegate> PromptCompletionProvider<T> {
             match_start: None,
             snippet_deduplication_key: None,
             insert_text_mode: None,
-            confirm: Some(if is_directory {
-                confirm_directory_completion_callback(
-                    file_name,
-                    source_range.start,
-                    new_text_len,
-                    uri,
-                    source,
-                    editor,
-                    mention_set,
-                    workspace,
-                )
-            } else {
-                confirm_completion_callback(
-                    file_name,
-                    source_range.start,
-                    new_text_len - 1,
-                    uri,
-                    source,
-                    editor,
-                    mention_set,
-                    workspace,
-                )
-            }),
+            confirm: Some(confirm_path_completion_callback(
+                file_name,
+                source_range.start,
+                new_text_len,
+                uri,
+                source,
+                editor,
+                mention_set,
+                workspace,
+            )),
             group: None,
         })
     }
@@ -2128,9 +2102,9 @@ fn confirm_completion_callback<T: PromptCompletionProviderDelegate>(
     })
 }
 
-/// Confirmation for a directory mention: Tab (`Compose`) keeps the path as text
-/// and reopens the completion menu so the user can walk deeper; Enter commits.
-fn confirm_directory_completion_callback<T: PromptCompletionProviderDelegate>(
+/// Confirmation for path mentions: Tab (`Compose`) keeps the path as text and
+/// reopens the completion menu so it can be edited or extended; Enter commits.
+fn confirm_path_completion_callback<T: PromptCompletionProviderDelegate>(
     crease_text: SharedString,
     start: Anchor,
     content_len: usize,
@@ -2141,7 +2115,7 @@ fn confirm_directory_completion_callback<T: PromptCompletionProviderDelegate>(
     workspace: Entity<Workspace>,
 ) -> Arc<dyn Fn(CompletionIntent, &mut Window, &mut App) -> bool + Send + Sync> {
     Arc::new(move |intent, window, cx| {
-        log::info!("mention: directory completion intent={intent:?}");
+        log::info!("mention: path completion intent={intent:?}");
         if matches!(intent, CompletionIntent::Compose) {
             return true;
         }
