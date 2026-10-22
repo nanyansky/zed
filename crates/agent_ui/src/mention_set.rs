@@ -6,7 +6,7 @@ use agent_servers::{AgentServer, AgentServerDelegate};
 use anyhow::{Context as _, Result, anyhow};
 use collections::{HashMap, HashSet};
 use editor::{
-    Anchor, Editor, EditorSnapshot, FoldPlaceholder, ToOffset,
+    Anchor, Editor, EditorSnapshot, FoldPlaceholder, SelectionEffects, ToOffset,
     display_map::{Crease, CreaseId, CreaseMetadata, FoldId},
     scroll::Autoscroll,
 };
@@ -62,6 +62,18 @@ pub struct MentionSet {
     thread_store: Option<Entity<ThreadStore>>,
     mentions: HashMap<CreaseId, (MentionUri, MentionTask)>,
     crease_entities: HashMap<CreaseId, Entity<LoadingContext>>,
+    /// Mention that the user expanded by clicking it, kept so it can be folded
+    /// back once the cursor leaves it.
+    expanded_mention: Option<ExpandedMention>,
+}
+
+struct ExpandedMention {
+    range: Range<Anchor>,
+    label: SharedString,
+    icon: SharedString,
+    tooltip: Option<SharedString>,
+    uri: MentionUri,
+    workspace: Option<WeakEntity<Workspace>>,
 }
 
 impl MentionSet {
@@ -71,6 +83,7 @@ impl MentionSet {
             thread_store,
             mentions: HashMap::default(),
             crease_entities: HashMap::default(),
+            expanded_mention: None,
         }
     }
 
@@ -179,6 +192,74 @@ impl MentionSet {
         self.recompute_disambiguation(cx);
     }
 
+    /// Remembers a mention the user just expanded so it can be folded again when
+    /// the cursor leaves it.
+    pub(crate) fn expand_mention(
+        &mut self,
+        range: Range<Anchor>,
+        label: SharedString,
+        icon: SharedString,
+        tooltip: Option<SharedString>,
+        uri: MentionUri,
+        workspace: Option<WeakEntity<Workspace>>,
+    ) {
+        self.expanded_mention = Some(ExpandedMention {
+            range,
+            label,
+            icon,
+            tooltip,
+            uri,
+            workspace,
+        });
+    }
+
+    /// Folds the expanded mention back once the cursor is no longer inside it.
+    pub(crate) fn refold_expanded_mention(
+        &mut self,
+        editor: Entity<Editor>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let Some(expanded) = self.expanded_mention.take() else {
+            return;
+        };
+
+        let snapshot = editor.read(cx).buffer().read(cx).snapshot(cx);
+        let head = editor.read(cx).selections.newest_anchor().head();
+        let is_inside = expanded.range.start.cmp(&head, &snapshot) != std::cmp::Ordering::Greater
+            && head.cmp(&expanded.range.end, &snapshot) != std::cmp::Ordering::Greater;
+        if is_inside {
+            self.expanded_mention = Some(expanded);
+            return;
+        }
+
+        let start = expanded.range.start.to_offset(&snapshot).0;
+        let end = expanded.range.end.to_offset(&snapshot).0;
+        if end <= start {
+            return;
+        }
+
+        // The crease helper expects a buffer anchor, not a multibuffer one.
+        let Some((start_anchor, _)) = snapshot.anchor_to_buffer_anchor(expanded.range.start) else {
+            return;
+        };
+
+        let _ = insert_crease_for_mention(
+            start_anchor,
+            end - start,
+            expanded.label,
+            expanded.icon,
+            expanded.tooltip,
+            Some(expanded.uri),
+            expanded.workspace,
+            None,
+            Some(cx.weak_entity()),
+            editor,
+            window,
+            cx,
+        );
+    }
+
     pub fn creases(&self) -> HashSet<CreaseId> {
         self.mentions.keys().cloned().collect()
     }
@@ -283,6 +364,7 @@ impl MentionSet {
                 Some(mention_uri.clone()),
                 Some(workspace.downgrade()),
                 Some(image),
+                Some(cx.weak_entity()),
                 editor.clone(),
                 window,
                 cx,
@@ -297,6 +379,7 @@ impl MentionSet {
                 Some(mention_uri.clone()),
                 Some(workspace.downgrade()),
                 None,
+                Some(cx.weak_entity()),
                 editor.clone(),
                 window,
                 cx,
@@ -931,6 +1014,7 @@ pub(crate) async fn insert_images_as_context(
                 None,
                 None,
                 Some(Task::ready(Ok(image.clone())).shared()),
+                Some(mention_set.downgrade()),
                 editor.clone(),
                 window,
                 cx,
@@ -1099,6 +1183,7 @@ pub(crate) fn insert_crease_for_mention(
     mention_uri: Option<MentionUri>,
     workspace: Option<WeakEntity<Workspace>>,
     image: Option<Shared<Task<Result<Arc<Image>, String>>>>,
+    mention_set: Option<WeakEntity<MentionSet>>,
     editor: Entity<Editor>,
     window: &mut Window,
     cx: &mut App,
@@ -1126,6 +1211,7 @@ pub(crate) fn insert_crease_for_mention(
             start..end,
             rx,
             image,
+            mention_set,
             cx.weak_entity(),
             cx,
         );
@@ -1344,6 +1430,7 @@ fn render_mention_fold_button(
     range: Range<Anchor>,
     mut loading_finished: postage::barrier::Receiver,
     image_task: Option<Shared<Task<Result<Arc<Image>, String>>>>,
+    mention_set: Option<WeakEntity<MentionSet>>,
     editor: WeakEntity<Editor>,
     cx: &mut App,
 ) -> (
@@ -1368,6 +1455,7 @@ fn render_mention_fold_button(
             workspace: workspace.clone(),
             range,
             editor,
+            mention_set,
             loading: Some(loading),
             image: image_task.clone(),
         }
@@ -1387,6 +1475,7 @@ pub struct LoadingContext {
     workspace: Option<WeakEntity<Workspace>>,
     range: Range<Anchor>,
     editor: WeakEntity<Editor>,
+    mention_set: Option<WeakEntity<MentionSet>>,
     loading: Option<Task<()>>,
     image: Option<Shared<Task<Result<Arc<Image>, String>>>>,
 }
@@ -1401,6 +1490,51 @@ impl Render for LoadingContext {
         let id = ElementId::from(("loading_context", self.id));
 
         MentionCrease::new(id, self.icon.clone(), self.label.clone())
+            .on_click({
+                let editor = self.editor.clone();
+                let range = self.range.clone();
+                let label = self.label.clone();
+                let icon = self.icon.clone();
+                let tooltip = self.tooltip.clone();
+                let uri = self.mention_uri.clone();
+                let workspace = self.workspace.clone();
+                let mention_set = self.mention_set.clone();
+                move |window, cx| {
+                    let Some(editor) = editor.upgrade() else {
+                        return;
+                    };
+                    let unfold_range = range.clone();
+                    editor.update(cx, |editor, cx| {
+                        editor.unfold_ranges(&[unfold_range.clone()], true, false, cx);
+                        editor.change_selections(
+                            SelectionEffects::no_scroll(),
+                            window,
+                            cx,
+                            |selections| {
+                                selections
+                                    .select_ranges([unfold_range.end..unfold_range.end])
+                            },
+                        );
+                    });
+
+                    let (Some(mention_set), Some(uri)) = (mention_set.clone(), uri.clone()) else {
+                        return;
+                    };
+                    mention_set
+                        .update(cx, |mention_set, cx| {
+                            mention_set.expand_mention(
+                                range.clone(),
+                                label.clone(),
+                                icon.clone(),
+                                tooltip.clone(),
+                                uri,
+                                workspace.clone(),
+                            );
+                            cx.notify();
+                        })
+                        .ok();
+                }
+            })
             .mention_uri(self.mention_uri.clone())
             .workspace(self.workspace.clone())
             .is_toggled(is_in_text_selection)

@@ -27,6 +27,7 @@ pub struct MentionCrease {
     is_loading: bool,
     tooltip: Option<SharedString>,
     image_preview: Option<Box<dyn Fn(&mut Window, &mut App) -> AnyView + 'static>>,
+    on_click: Option<Box<dyn Fn(&mut Window, &mut App) + 'static>>,
 }
 
 impl MentionCrease {
@@ -49,6 +50,7 @@ impl MentionCrease {
             is_loading: false,
             tooltip: None,
             image_preview: None,
+            on_click: None,
         }
     }
 
@@ -84,6 +86,12 @@ impl MentionCrease {
         self.image_preview = Some(Box::new(builder));
         self
     }
+
+    /// Overrides the default click behavior (opening the mention target).
+    pub fn on_click(mut self, handler: impl Fn(&mut Window, &mut App) + 'static) -> Self {
+        self.on_click = Some(Box::new(handler));
+        self
+    }
 }
 
 impl RenderOnce for MentionCrease {
@@ -94,6 +102,8 @@ impl RenderOnce for MentionCrease {
         let is_loading = self.is_loading;
         let tooltip = self.tooltip;
         let image_preview = self.image_preview;
+        let on_click = self.on_click;
+        let has_on_click = on_click.is_some();
 
         let button_height = DefiniteLength::Absolute(AbsoluteLength::Pixels(
             px(window.line_height().into()) - px(1.),
@@ -105,14 +115,19 @@ impl RenderOnce for MentionCrease {
             .height(button_height)
             .selected_style(ButtonStyle::Tinted(TintColor::Accent))
             .toggle_state(self.is_toggled)
-            .when_some(
-                self.mention_uri.clone().zip(self.workspace.clone()),
-                |this, (mention_uri, workspace)| {
-                    this.on_click(move |_event, window, cx| {
-                        open_mention_uri(mention_uri.clone(), &workspace, window, cx);
-                    })
-                },
-            )
+            .when_some(on_click, |this, handler| {
+                this.on_click(move |_event, window, cx| handler(window, cx))
+            })
+            .when(!has_on_click, |this| {
+                this.when_some(
+                    self.mention_uri.clone().zip(self.workspace.clone()),
+                    |this, (mention_uri, workspace)| {
+                        this.on_click(move |_event, window, cx| {
+                            open_mention_uri(mention_uri.clone(), &workspace, window, cx);
+                        })
+                    },
+                )
+            })
             .child(
                 h_flex()
                     .pb_px()

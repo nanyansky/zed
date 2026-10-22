@@ -548,6 +548,23 @@ impl MessageEditor {
 
         subscriptions.push(cx.subscribe_in(&editor, window, {
             move |this, editor, event, window, cx| {
+                // A mention expanded by a click is folded back as soon as the
+                // cursor leaves it.
+                if matches!(
+                    event,
+                    EditorEvent::SelectionsChanged { .. } | EditorEvent::Blurred
+                ) {
+                    let editor = editor.clone();
+                    let mention_set = this.mention_set.clone();
+                    window.defer(cx, move |window, cx| {
+                        mention_set
+                            .update(cx, |mention_set, cx| {
+                                mention_set.refold_expanded_mention(editor, window, cx);
+                            })
+                            .ok();
+                    });
+                }
+
                 let input_attempted_text = match event {
                     EditorEvent::InputHandled { text, .. } => Some(text),
                     EditorEvent::InputIgnored { text } => Some(text),
